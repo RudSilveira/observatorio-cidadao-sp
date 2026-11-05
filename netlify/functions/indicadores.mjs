@@ -2,8 +2,17 @@
 // Fontes: Banco Central (SGS) e IBGE (API de agregados).
 import { getJSON, settle, json, brDateToISO } from "../lib/fonte.mjs";
 
+// "ultimos/N" aceita no máximo 20 pontos.
 const SGS = (codigo, n) =>
   `https://api.bcb.gov.br/dados/serie/bcdata.sgs.${codigo}/dados/ultimos/${n}?formato=json`;
+// Consulta por intervalo de datas (dd/mm/aaaa), usada na Selic, que é diária e tem datas futuras.
+const brData = (d) =>
+  `${String(d.getUTCDate()).padStart(2, "0")}/${String(d.getUTCMonth() + 1).padStart(2, "0")}/${d.getUTCFullYear()}`;
+const SGS_PERIODO = (codigo, dias) => {
+  const fim = new Date();
+  const ini = new Date(fim.getTime() - dias * 24 * 3600 * 1000);
+  return `https://api.bcb.gov.br/dados/serie/bcdata.sgs.${codigo}/dados?formato=json&dataInicial=${brData(ini)}&dataFinal=${brData(fim)}`;
+};
 
 // Séries do SGS usadas:
 //   13522  IPCA acumulado em 12 meses (%)
@@ -47,7 +56,7 @@ export default async () => {
   const { data, erros } = await settle({
     ipca12m: async () => serie(await getJSON(SGS(13522, 13))),
     ipcaMes: async () => serie(await getJSON(SGS(433, 2))),
-    selic: async () => serie(await getJSON(SGS(432, 60))),
+    selic: async () => serie(await getJSON(SGS_PERIODO(432, 15))),
     desemprego: async () => serie(await getJSON(SGS(24369, 13))),
     populacao,
   });
