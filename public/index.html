@@ -58,7 +58,7 @@ main{padding-block:28px 64px}
 .panel h3{margin:0 0 4px;font:700 19px/1.2 var(--f-display);font-stretch:90%}
 .panel .sub{margin:0 0 16px;color:var(--muted);font-size:13.5px}
 .span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-7{grid-column:span 7}.span-6{grid-column:span 6}.span-5{grid-column:span 5}.span-4{grid-column:span 4}
-section.block{margin-top:36px}
+section.block{margin-top:36px;scroll-margin-top:130px}
 section.block > .eyebrow{border-top:2px solid var(--fg);padding-top:10px;margin-bottom:14px}
 
 /* executivo */
@@ -150,6 +150,60 @@ table.t td.r,table.t th.r{text-align:right;font-variant-numeric:tabular-nums}
 #tip{position:fixed;pointer-events:none;background:var(--fg);color:var(--bg);font-size:12.5px;padding:6px 9px;border-radius:4px;z-index:20;max-width:240px}
 footer{border-top:1px solid var(--line);padding-block:20px;color:var(--muted);font-size:12.5px}
 
+
+/* aba Prioridades */
+.pr-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:860px){.pr-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:480px){.pr-tiles{grid-template-columns:1fr}}
+.pr-tiles .kpi .v{font-size:28px}
+.pr-tiles .kpi a{font-size:12px;color:var(--muted)}
+.pr-dots{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px 10px;align-items:center;font-size:13.5px;position:relative}
+.pr-dots .lbl{white-space:nowrap}
+.pr-dots .track{position:relative;height:18px}
+.pr-dots .avg{position:absolute;top:-4px;bottom:-4px;width:0;border-left:1.5px dashed var(--faint)}
+.pr-dots .seg{position:absolute;top:8px;height:2px;border-radius:2px}
+.pr-dots .dot{position:absolute;top:3px;width:12px;height:12px;border-radius:50%;margin-left:-6px;border:2px solid var(--surface)}
+.pr-dots .val{color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
+.pr-dots .row{display:contents}
+.pr-axis{display:flex;justify-content:space-between;font:11px var(--f-mono);color:var(--faint);margin-top:8px}
+.pr-terr{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.pr-terr li{display:grid;gap:2px;border-bottom:1px dashed var(--line);padding-bottom:8px;font-size:14px}
+.pr-terr li:last-child{border-bottom:0}
+.pr-terr small{color:var(--muted);font-size:12.5px}
+table.pr-rank{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+table.pr-rank th{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600;text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.pr-rank td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}
+table.pr-rank tbody tr{cursor:pointer}
+table.pr-rank tbody tr:hover td,table.pr-rank tbody tr.on td{background:var(--ink-soft)}
+table.pr-rank tbody tr:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.pr-pos{font:700 18px var(--f-display);color:var(--ink);width:36px}
+.pr-tema{font-weight:600;min-width:190px}
+.pr-nota{min-width:150px}
+.pr-bar{display:flex;align-items:center;gap:8px}
+.pr-bar .t{flex:1;height:8px;border-radius:4px;background:var(--line);overflow:hidden;min-width:50px}
+.pr-bar .f{height:100%;border-radius:0 4px 4px 0;background:var(--ink-fill)}
+.pr-pips{display:inline-flex;gap:3px;vertical-align:middle}
+.pr-pips i{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.pr-pips i.on{background:var(--muted)}
+.pr-crit{white-space:nowrap}
+@media (max-width:760px){.pr-crit{display:none}}
+.pr-diag{background:var(--ink-soft);border-radius:6px;padding:14px 16px;font-size:14.5px;display:grid;gap:6px;max-width:85ch}
+.pr-diag small{color:var(--muted);font-size:13px}
+.pr-board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:start}
+@media (max-width:900px){.pr-board{grid-template-columns:1fr}}
+.pr-col{display:grid;gap:10px;min-width:0}
+.pr-col > header{border-bottom:3px solid var(--fg);padding-bottom:6px;display:grid;gap:2px}
+.pr-col > header b{font:700 19px var(--f-display);font-stretch:88%;text-transform:uppercase}
+.pr-col > header span{font-size:12.5px;color:var(--muted)}
+.pr-act{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px;display:grid;gap:6px}
+.pr-act .tag{font:500 11.5px var(--f-mono);color:var(--ink)}
+.pr-act h4{margin:0;font:700 16px/1.25 var(--f-display);font-stretch:92%}
+.pr-act p{margin:0;font-size:13.5px;color:var(--muted)}
+.pr-act dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:2px 8px;font-size:12.5px}
+.pr-act dt{color:var(--faint)}
+.pr-act dd{margin:0}
+.pr-method summary{cursor:pointer;font-weight:600}
+.pr-method ul{margin:10px 0 0;padding-left:18px;display:grid;gap:6px;font-size:13.5px;color:var(--muted);max-width:80ch}
 @media (max-width:860px){
   .lede{grid-template-columns:1fr}
   .span-8,.span-7,.span-6,.span-5,.span-4{grid-column:span 12}
@@ -170,6 +224,7 @@ footer{border-top:1px solid var(--line);padding-block:20px;color:var(--muted);fo
       <a href="#brasil" data-view="brasil">Brasil</a>
       <a href="#estado" data-view="estado">Estado de São Paulo</a>
       <a href="#cidade" data-view="cidade">Cidade de São Paulo</a>
+      <a href="#prioridades" data-view="prioridades">Prioridades</a>
       <a href="#fontes" data-view="fontes">Fontes e método</a>
     </nav>
   </div>
@@ -304,6 +359,8 @@ cidade:{
 }
 };
 
+const PR = {"temas": [{"id": "saude", "tema": "Saúde e primeira infância", "gravidade": 5, "pessoas": 5, "desigualdade": 5, "efeito": 5, "alcance": 4, "diagnostico": "A idade média ao morrer vai de 82 anos em Alto de Pinheiros a 58 em Anhanguera. A mortalidade infantil chega a 20 por mil no Brás, o dobro da média da cidade.", "territorios": "Anhanguera, Brasilândia, Brás, Pari, Cidade Tiradentes, Iguatemi"}, {"id": "moradia", "tema": "Moradia e áreas de risco", "gravidade": 5, "pessoas": 4, "desigualdade": 5, "efeito": 5, "alcance": 4, "diagnostico": "Cerca de 186 mil moradias estão em áreas de risco de deslizamento, a maioria na periferia. Sem casa segura, saúde, escola e emprego também pioram.", "territorios": "M'Boi Mirim, Brasilândia, Jardim Ângela, Capela do Socorro"}, {"id": "educacao", "tema": "Educação e alfabetização", "gravidade": 4, "pessoas": 5, "desigualdade": 4, "efeito": 5, "alcance": 5, "diagnostico": "Menos da metade das crianças de 7 anos da cidade estava alfabetizada em 2024 pelo indicador nacional. A escola é o serviço público que mais chega a todas as famílias.", "territorios": "Marsilac, Parelheiros, Guaianases, Brasilândia"}, {"id": "seguranca", "tema": "Segurança e espaço público", "gravidade": 5, "pessoas": 5, "desigualdade": 4, "efeito": 4, "alcance": 2, "diagnostico": "É o problema mais citado pelos paulistanos (71%). Roubos caíram em 2025, mas homicídios subiram. A polícia é do Estado; a Prefeitura atua com GCM, iluminação e prevenção.", "territorios": "Sé, Brás, distritos com mais mortes violentas"}, {"id": "mobilidade", "tema": "Mobilidade e tempo de viagem", "gravidade": 3, "pessoas": 5, "desigualdade": 5, "efeito": 4, "alcance": 4, "diagnostico": "Quem mora mais longe gasta mais horas no ônibus e chega a menos empregos. Os BRTs Aricanduva e Radial Leste ainda não foram concluídos.", "territorios": "Zona Leste, extremo Sul, extremo Norte"}, {"id": "clima", "tema": "Clima, enchentes e calor", "gravidade": 4, "pessoas": 4, "desigualdade": 4, "efeito": 4, "alcance": 4, "diagnostico": "Chuvas mais fortes e ondas de calor atingem primeiro os bairros com menos árvores, mais concreto e moradias precárias.", "territorios": "Bairros com pouca arborização e várzeas de córregos"}, {"id": "trabalho", "tema": "Trabalho e renda nos bairros", "gravidade": 3, "pessoas": 4, "desigualdade": 5, "efeito": 4, "alcance": 2, "diagnostico": "O emprego formal se concentra no centro expandido. Brasilândia fica abaixo da média em emprego formal e salário.", "territorios": "Brasilândia, Cidade Tiradentes, Guaianases, Grajaú"}, {"id": "gestao", "tema": "Gestão, dados e participação", "gravidade": 2, "pessoas": 5, "desigualdade": 3, "efeito": 5, "alcance": 5, "diagnostico": "Sem metas e orçamento por distrito não dá para cobrar redução de desigualdade. É a base que faz os outros temas andarem.", "territorios": "Todas as 32 subprefeituras"}, {"id": "rua", "tema": "População em situação de rua", "gravidade": 5, "pessoas": 2, "desigualdade": 3, "efeito": 3, "alcance": 4, "diagnostico": "Cerca de 93 mil pessoas estavam no CadÚnico como em situação de rua em jan/2025. O censo municipal de 2021, feito com outro método, contou 31.884. Em qualquer conta, é a forma mais extrema de exclusão na cidade.", "territorios": "Sé, República, Brás, Santa Cecília"}, {"id": "cultura", "tema": "Cultura, esporte e lazer", "gravidade": 2, "pessoas": 4, "desigualdade": 4, "efeito": 3, "alcance": 5, "diagnostico": "Equipamentos culturais e esportivos se concentram nas regiões centrais. Na periferia, ocupam o tempo dos jovens e fortalecem a vida do bairro.", "territorios": "Distritos sem CEU, biblioteca ou centro esportivo"}], "criterios": [{"criterio": "gravidade", "nome": "Gravidade", "peso": 30, "pergunta": "O problema custa vidas, saúde ou futuro das pessoas?"}, {"criterio": "pessoas", "nome": "Pessoas afetadas", "peso": 25, "pergunta": "Quantos moradores sentem o problema no dia a dia?"}, {"criterio": "desigualdade", "nome": "Desigualdade entre bairros", "peso": 20, "pergunta": "O problema pesa muito mais na periferia do que no centro expandido?"}, {"criterio": "efeito", "nome": "Efeito em cadeia", "peso": 15, "pergunta": "Resolver isto melhora outros temas ao mesmo tempo?"}, {"criterio": "alcance", "nome": "Alcance da Prefeitura", "peso": 10, "pergunta": "A Prefeitura tem poder e orçamento para agir sozinha?"}], "acoes": [{"id": "saude-0", "tema_id": "saude", "horizonte": "Curto", "ordem": 1, "acao": "Busca ativa de gestantes e bebês", "detalhe": "Pré-natal com 7 ou mais consultas e visita domiciliar na primeira semana de vida em todos os distritos com mortalidade infantil acima da média.", "onde": "Brás, Pari, Brasilândia", "indicador": "Mortalidade infantil por distrito"}, {"id": "saude-1", "tema_id": "saude", "horizonte": "Curto", "ordem": 1, "acao": "Fila de especialistas transparente", "detalhe": "Mutirões regionais para consultas e exames com mais de 6 meses de espera e fila pública consultável pelo paciente.", "onde": "Todas as regiões, começando pelo extremo Sul e Leste", "indicador": "Tempo médio de espera por especialidade"}, {"id": "saude-2", "tema_id": "saude", "horizonte": "Médio", "ordem": 2, "acao": "Saúde da Família completa na periferia", "detalhe": "Equipes completas e UBS com horário estendido em 100% dos distritos de maior vulnerabilidade.", "onde": "Distritos com idade média ao morrer abaixo de 65 anos", "indicador": "Cobertura da Estratégia Saúde da Família"}, {"id": "saude-3", "tema_id": "saude", "horizonte": "Longo", "ordem": 3, "acao": "Metade da diferença de longevidade", "detalhe": "Reduzir de 24 para 12 anos a distância na idade média ao morrer entre o melhor e o pior distrito.", "onde": "Cidade inteira", "indicador": "Idade média ao morrer por distrito"}, {"id": "moradia-4", "tema_id": "moradia", "horizonte": "Curto", "ordem": 1, "acao": "Ninguém dormindo em risco de morte", "detalhe": "Contenção de encostas e realocação das famílias em risco alto e muito alto antes de cada verão, com alerta por SMS.", "onde": "M'Boi Mirim, Brasilândia, Jardim Ângela", "indicador": "Moradias em risco alto e muito alto"}, {"id": "moradia-5", "tema_id": "moradia", "horizonte": "Curto", "ordem": 1, "acao": "Aluguel social com porta de saída", "detalhe": "Auxílio aluguel com prazo e vínculo a uma unidade habitacional definida, para não virar espera sem fim.", "onde": "Famílias removidas de áreas de risco", "indicador": "Famílias atendidas e tempo até a moradia definitiva"}, {"id": "moradia-6", "tema_id": "moradia", "horizonte": "Médio", "ordem": 2, "acao": "Urbanização completa de favelas", "detalhe": "Saneamento, drenagem, pavimentação e escritura no mesmo pacote, bairro a bairro.", "onde": "Favelas em áreas de várzea e encosta", "indicador": "Domicílios em favelas urbanizadas e regularizados"}, {"id": "moradia-7", "tema_id": "moradia", "horizonte": "Médio", "ordem": 2, "acao": "Moradia perto do emprego", "detalhe": "Retrofit de prédios vazios no centro e unidades do Pode Entrar próximas a metrô, trem e corredores.", "onde": "Centro e eixos de transporte", "indicador": "Unidades entregues a até 1 km de transporte de alta capacidade"}, {"id": "moradia-8", "tema_id": "moradia", "horizonte": "Longo", "ordem": 3, "acao": "Zero moradias em área de risco", "detalhe": "Eliminar o risco geológico habitado e integrar as favelas à cidade formal, cumprindo a função social da propriedade do Plano Diretor.", "onde": "Cidade inteira", "indicador": "Moradias em área de risco"}, {"id": "educacao-9", "tema_id": "educacao", "horizonte": "Curto", "ordem": 1, "acao": "Alfabetização na idade certa", "detalhe": "Avaliação de leitura no 1º e 2º ano em toda a rede e tutoria em pequenos grupos para quem ficou para trás.", "onde": "Escolas com pior resultado, primeiro", "indicador": "Crianças alfabetizadas aos 7 anos"}, {"id": "educacao-10", "tema_id": "educacao", "horizonte": "Médio", "ordem": 2, "acao": "Tempo integral onde falta mais", "detalhe": "Ampliar tempo integral começando pelas escolas das áreas mais vulneráveis, e educação infantil a até 1,5 km de casa.", "onde": "Marsilac, Parelheiros, Guaianases", "indicador": "Alunos em tempo integral por distrito"}, {"id": "educacao-11", "tema_id": "educacao", "horizonte": "Longo", "ordem": 3, "acao": "Escola como centro do bairro", "detalhe": "CEU ou equipamento equivalente em cada distrito que não tem, aberto à noite e no fim de semana, com ensino técnico ligado a vagas reais.", "onde": "Distritos sem CEU", "indicador": "Distritos com CEU"}, {"id": "seguranca-12", "tema_id": "seguranca", "horizonte": "Curto", "ordem": 1, "acao": "Caminho seguro", "detalhe": "Iluminação, poda e zeladoria nos trajetos a pé até pontos de ônibus, escolas e UBS, mapeados com os moradores.", "onde": "Periferias e centro", "indicador": "Pontos críticos resolvidos"}, {"id": "seguranca-13", "tema_id": "seguranca", "horizonte": "Médio", "ordem": 2, "acao": "Prevenção com jovens", "detalhe": "Programas de cultura, esporte e primeiro emprego focados nos bairros com mais mortes violentas, com GCM comunitária integrada à PM.", "onde": "Distritos com mais homicídios", "indicador": "Homicídios de jovens de 15 a 29 anos"}, {"id": "seguranca-14", "tema_id": "seguranca", "horizonte": "Longo", "ordem": 3, "acao": "Proteção às mulheres", "detalhe": "Casa da Mulher Brasileira e rede de acolhimento em todas as regiões, com resposta rápida a medidas protetivas.", "onde": "Todas as regiões", "indicador": "Feminicídios e tentativas"}, {"id": "mobilidade-15", "tema_id": "mobilidade", "horizonte": "Curto", "ordem": 1, "acao": "Faixa exclusiva já", "detalhe": "Faixas de ônibus e prioridade nos semáforos nos eixos entre periferia e centro que ainda não têm.", "onde": "Zona Leste, Sul e Norte", "indicador": "Velocidade média dos ônibus no pico"}, {"id": "mobilidade-16", "tema_id": "mobilidade", "horizonte": "Médio", "ordem": 2, "acao": "Concluir o que começou", "detalhe": "Terminar os BRTs Aricanduva e Radial Leste e os terminais prometidos, com integração tarifária com trem e metrô.", "onde": "Zona Leste", "indicador": "Obras concluídas"}, {"id": "mobilidade-17", "tema_id": "mobilidade", "horizonte": "Longo", "ordem": 3, "acao": "Emprego mais perto de casa", "detalhe": "Atrair empresas e serviços para polos na Leste e na Sul, reduzindo as viagens de mais de duas horas por dia.", "onde": "Itaquera, Santo Amaro, Parelheiros", "indicador": "Empregos formais por distrito"}, {"id": "clima-18", "tema_id": "clima", "horizonte": "Curto", "ordem": 1, "acao": "Plano de verão", "detalhe": "Limpeza de córregos e bocas de lobo antes das chuvas e abrigos de calor em CEUs e UBS nas ondas de calor.", "onde": "Várzeas e bairros sem árvores", "indicador": "Pontos de alagamento"}, {"id": "clima-19", "tema_id": "clima", "horizonte": "Médio", "ordem": 2, "acao": "Sombra onde mais falta", "detalhe": "Plantio de árvores nas ruas dos distritos com menos verde e mais calor, e parques lineares nos córregos.", "onde": "Distritos com menor cobertura vegetal", "indicador": "Cobertura arbórea por distrito"}, {"id": "clima-20", "tema_id": "clima", "horizonte": "Longo", "ordem": 3, "acao": "Cidade-esponja", "detalhe": "Drenagem que segura a água da chuva no solo, córregos renaturalizados e meta mínima de verde por distrito.", "onde": "Cidade inteira", "indicador": "Área permeável e mortes por enchente"}, {"id": "trabalho-21", "tema_id": "trabalho", "horizonte": "Curto", "ordem": 1, "acao": "Obra do bairro, emprego do bairro", "detalhe": "Cota para moradores locais nas obras e serviços públicos da região, com qualificação antes da contratação.", "onde": "Distritos com obras públicas em andamento", "indicador": "Contratações de moradores locais"}, {"id": "trabalho-22", "tema_id": "trabalho", "horizonte": "Médio", "ordem": 2, "acao": "Pequeno negócio forte", "detalhe": "Centros de apoio ao empreendedor com crédito, formalização e internet pública nas periferias.", "onde": "Brasilândia, Cidade Tiradentes, Grajaú", "indicador": "Negócios formalizados por distrito"}, {"id": "trabalho-23", "tema_id": "trabalho", "horizonte": "Longo", "ordem": 3, "acao": "Polos econômicos regionais", "detalhe": "Incentivos para empresas se instalarem fora do centro expandido, previstos no Plano Diretor.", "onde": "Zona Leste e extremo Sul", "indicador": "Empregos formais por habitante"}, {"id": "gestao-24", "tema_id": "gestao", "horizonte": "Curto", "ordem": 1, "acao": "Orçamento por distrito, aberto", "detalhe": "Publicar quanto se gasta e quais metas valem em cada distrito, num painel atualizado.", "onde": "32 subprefeituras", "indicador": "Percentual do orçamento regionalizado"}, {"id": "gestao-25", "tema_id": "gestao", "horizonte": "Médio", "ordem": 2, "acao": "Mais dinheiro onde falta mais", "detalhe": "Regra que destina parte maior dos investimentos aos distritos com piores indicadores, decidida com os conselhos locais.", "onde": "Distritos prioritários", "indicador": "Investimento por habitante por distrito"}, {"id": "gestao-26", "tema_id": "gestao", "horizonte": "Longo", "ordem": 3, "acao": "Desigualdade como meta oficial", "detalhe": "Cada Programa de Metas com metas de redução da distância entre distritos, cobradas em lei.", "onde": "Cidade inteira", "indicador": "Distância entre melhor e pior distrito nos principais indicadores"}, {"id": "rua-27", "tema_id": "rua", "horizonte": "Curto", "ordem": 1, "acao": "Contar e acompanhar cada pessoa", "detalhe": "Censo atualizado e abordagem contínua, com vagas em repúblicas pequenas em vez de grandes albergues.", "onde": "Centro", "indicador": "Pessoas acolhidas com plano individual"}, {"id": "rua-28", "tema_id": "rua", "horizonte": "Médio", "ordem": 2, "acao": "Moradia Primeiro", "detalhe": "Moradia com acompanhamento de saúde mental, dependência química e trabalho para quem está há mais tempo na rua.", "onde": "Centro e grandes eixos", "indicador": "Pessoas que saíram da rua e permaneceram em moradia"}, {"id": "rua-29", "tema_id": "rua", "horizonte": "Longo", "ordem": 3, "acao": "Evitar que alguém chegue à rua", "detalhe": "Apoio a famílias em despejo e a quem sai de prisões, abrigos e hospitais psiquiátricos.", "onde": "Cidade inteira", "indicador": "Novas entradas na rua por ano"}, {"id": "cultura-30", "tema_id": "cultura", "horizonte": "Curto", "ordem": 1, "acao": "CEU aberto até mais tarde", "detalhe": "Programação cultural e esportiva à noite e no fim de semana nos equipamentos que já existem.", "onde": "Periferias", "indicador": "Frequência nos CEUs"}, {"id": "cultura-31", "tema_id": "cultura", "horizonte": "Médio", "ordem": 2, "acao": "Praça e quadra em todo bairro", "detalhe": "Equipamentos de lazer nos distritos que não têm nenhum.", "onde": "Distritos sem equipamento", "indicador": "Distritos sem praça ou quadra pública"}, {"id": "cultura-32", "tema_id": "cultura", "horizonte": "Longo", "ordem": 3, "acao": "Fomento permanente", "detalhe": "Editais contínuos para coletivos culturais das periferias, sem depender de cada gestão.", "onde": "Periferias", "indicador": "Recursos para cultura por distrito"}], "longevidade": [{"distrito": "Alto de Pinheiros", "anos": 82, "grupo": "topo"}, {"distrito": "Pinheiros", "anos": 81, "grupo": "topo"}, {"distrito": "Jardim Paulista", "anos": 81, "grupo": "topo"}, {"distrito": "Perdizes", "anos": 80, "grupo": "topo"}, {"distrito": "Moema", "anos": 79, "grupo": "topo"}, {"distrito": "Média da cidade", "anos": 70, "grupo": "media"}, {"distrito": "Cidade Tiradentes", "anos": 60, "grupo": "base"}, {"distrito": "Iguatemi", "anos": 60, "grupo": "base"}, {"distrito": "Sé", "anos": 60, "grupo": "base"}, {"distrito": "Anhanguera", "anos": 58, "grupo": "base"}], "indicadores": [{"id": "longevidade_gap", "indicador": "Diferença na idade média ao morrer", "valor": 24, "unidade": "anos", "referencia": "Mapa da Desigualdade 2025", "nota": "Alto de Pinheiros (82) contra Anhanguera (58)", "fonte": "Rede Nossa São Paulo, via IstoÉ Dinheiro", "url": "https://istoedinheiro.com.br/disparidade-entre-distritos-se-mantem-mostra-mapa-da-desigualdade-em-sp"}, {"id": "mort_inf_bras", "indicador": "Mortalidade infantil no Brás", "valor": 20, "unidade": "por mil nascidos vivos", "referencia": "2025", "nota": "Média da cidade: 9,98 por mil", "fonte": "Mapa da Desigualdade da Primeira Infância 2026", "url": "https://www.correiodamanha.com.br/nacional/sao-paulo/2026/09/318791-bras-tem-maior-taxa-de-mortalidade-infantil-em-sp.html"}, {"id": "mort_inf_cidade", "indicador": "Mortalidade infantil na cidade", "valor": 9.98, "unidade": "por mil nascidos vivos", "referencia": "2025", "nota": "Era 11,17 na edição anterior", "fonte": "Prefeitura de São Paulo", "url": "https://prefeitura.sp.gov.br/web/secretaria_executiva_de_projetos_estrategicos/w/3%C2%BA-mapa-da-desigualdade-da-primeira-inf%C3%A2ncia-refor%C3%A7a-diagn%C3%B3sticos-territoriais-realizados-pela-prefeitura-de-s%C3%A3o-paulo"}, {"id": "risco", "indicador": "Moradias em área de risco de deslizamento", "valor": 185634, "unidade": "moradias", "referencia": "dez/2023", "nota": "489 áreas em 29 das 32 subprefeituras", "fonte": "GeoSampa, via Agência Pública", "url": "https://apublica.org/2024/01/sao-paulo-tem-quase-200-mil-moradias-em-area-de-risco-de-deslizamento-de-terra/"}, {"id": "rua", "indicador": "Pessoas em situação de rua no CadÚnico", "valor": 93355, "unidade": "pessoas", "referencia": "jan/2025", "nota": "O censo municipal de 2021 contou 31.884", "fonte": "OBPopRua/UFMG, via Metrópoles", "url": "https://www.metropoles.com/sao-paulo/numero-de-pessoas-em-situacao-de-rua-se-mantem-estavel-em-sao-paulo"}, {"id": "alfabetizacao", "indicador": "Crianças alfabetizadas aos 7 anos", "valor": 48.25, "unidade": "%", "referencia": "2024", "nota": "Meta nacional era 60%; meta municipal é 70% em 2028", "fonte": "Indicador Criança Alfabetizada (Inep), via DGABC", "url": "https://www.dgabc.com.br/Noticia/4245086/alfabetizacao-resultado-da-cidade-de-sp-e-o-17-entre-as-capitais-estado-e-o-13"}, {"id": "seguranca_pesquisa", "indicador": "Citam segurança como maior problema", "valor": 71, "unidade": "%", "referencia": "dez/2025", "nota": "Pesquisa Ipsos-Ipec para a Rede Nossa São Paulo, 700 entrevistas", "fonte": "Ipsos-Ipec", "url": "https://www.ipsos.com/sites/default/files/ct/publication/documents/2026-01/25-084680%20-%20Qualidade%20de%20vida%20em%20S%C3%A3o%20Paulo%20-%20release.pdf"}, {"id": "homicidios", "indicador": "Homicídios na capital", "valor": 530, "unidade": "vítimas", "referencia": "2025", "nota": "Alta de 6,4% sobre 2024; roubos caíram 14,6%", "fonte": "SSP-SP, via Viva", "url": "https://viva.com.br/noticias/homicidios-e-furtos-sobem-na-cidade-de-sp-em-2025-roubos-diminuem.html"}, {"id": "sairiam", "indicador": "Sairiam da cidade se pudessem", "valor": 67, "unidade": "%", "referencia": "dez/2025", "nota": "Mesma pesquisa Ipsos-Ipec", "fonte": "Ipsos-Ipec", "url": "https://www.ipsos.com/sites/default/files/ct/publication/documents/2026-01/25-084680%20-%20Qualidade%20de%20vida%20em%20S%C3%A3o%20Paulo%20-%20release.pdf"}, {"id": "pode_entrar", "indicador": "Moradias entregues pelo Pode Entrar", "valor": 5358, "unidade": "moradias", "referencia": "2025", "nota": "42 mil unidades em obra no fim de 2025", "fonte": "Secretaria Municipal de Habitação", "url": "https://prefeitura.sp.gov.br/web/habitacao/w/prefeitura-de-s%C3%A3o-paulo-registra-avan%C3%A7os-hist%C3%B3ricos-na-pol%C3%ADtica-habitacional-em-2025"}, {"id": "metas", "indicador": "Investimento previsto no Programa de Metas", "valor": 57, "unidade": "R$ bilhões", "referencia": "2025–2028", "nota": "132 metas", "fonte": "Prefeitura de São Paulo", "url": "https://prefeitura.sp.gov.br/w/programa-de-metas-prev%C3%AA-r-57-bi-em-investimentos-nos-pr%C3%B3ximos-quatro-anos"}, {"id": "ei_marsilac", "indicador": "Crianças na educação infantil a até 1,5 km de casa em Marsilac", "valor": 23.6, "unidade": "%", "referencia": "2026", "nota": "Em Casa Verde são 96%", "fonte": "Prefeitura de São Paulo", "url": "https://prefeitura.sp.gov.br/web/secretaria_executiva_de_projetos_estrategicos/w/3%C2%BA-mapa-da-desigualdade-da-primeira-inf%C3%A2ncia-refor%C3%A7a-diagn%C3%B3sticos-territoriais-realizados-pela-prefeitura-de-s%C3%A3o-paulo"}], "territorios": [{"distrito": "Anhanguera", "regiao": "Norte", "motivo": "Menor idade média ao morrer da cidade: 58 anos."}, {"distrito": "Brasilândia", "regiao": "Norte", "motivo": "Último lugar no ranking geral do Mapa da Desigualdade 2025; mortalidade infantil de 18,3 por mil; cerca de 1.100 moradias em risco muito alto no Parque Brasilândia."}, {"distrito": "Cidade Tiradentes", "regiao": "Leste", "motivo": "Idade média ao morrer de 60 anos."}, {"distrito": "Iguatemi", "regiao": "Leste", "motivo": "Idade média ao morrer de 60 anos."}, {"distrito": "Guaianases", "regiao": "Leste", "motivo": "Maior taxa de gravidez na adolescência: 10,5%, contra 6,8% na cidade."}, {"distrito": "Brás e Pari", "regiao": "Centro", "motivo": "Maior mortalidade infantil da cidade: 20 e 19,2 por mil nascidos vivos."}, {"distrito": "Sé", "regiao": "Centro", "motivo": "Idade média ao morrer de 60 anos e maior índice de mortes violentas da cidade."}, {"distrito": "Jardim Ângela e M'Boi Mirim", "regiao": "Sul", "motivo": "M'Boi Mirim é a subprefeitura com mais áreas de risco mapeadas: 60."}, {"distrito": "Marsilac", "regiao": "Sul", "motivo": "Só 23,6% das crianças estudam a até 1,5 km de casa na educação infantil."}]};
+
 const FONTES = [
  ["Tribunal Superior Eleitoral (TSE)","https://www.tse.jus.br/","Resultados das eleições"],
  ["IBGE","https://www.ibge.gov.br/","Inflação, emprego, PIB, população"],
@@ -383,6 +440,7 @@ function render(view){
   const app=document.getElementById("app");
   document.querySelectorAll("nav.tabs a").forEach(a=>{ if(a.dataset.view===view) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
   if(view==="fontes"){ app.innerHTML=fontesView(); return; }
+  if(view==="prioridades"){ app.innerHTML=prioridadesView(); wirePrioridades(app); return; }
   const d=D[view];
   let h=`<div class="lede"><div><p class="eyebrow">Acompanhamento da gestão pública</p><h2>${esc(d.titulo)}</h2></div><p>${esc(d.lede)}</p></div>`;
   h+=`<div class="grid">${execPanel(d.exec)}<div class="span-7" style="min-width:0">${kpiBlock(d.kpis)}</div></div>`;
@@ -473,7 +531,7 @@ document.addEventListener("pointermove",e=>{const t=e.target.closest&&e.target.c
   const w=tip.offsetWidth; let x=e.clientX+14; if(x+w>innerWidth-8)x=e.clientX-w-14; tip.style.left=Math.max(8,x)+"px"; tip.style.top=(e.clientY+16)+"px";});
 document.addEventListener("pointerleave",()=>tip.hidden=true);
 
-function route(){const v=(location.hash||"#brasil").slice(1);render(["brasil","estado","cidade","fontes"].includes(v)?v:"brasil");}
+function route(){const v=(location.hash||"#brasil").slice(1);render(["brasil","estado","cidade","prioridades","fontes"].includes(v)?v:"brasil");}
 addEventListener("hashchange",()=>{route();window.scrollTo(0,0);});
 // ---------- Camada ao vivo: consulta as funções /api/* do próprio site ----------
 const LIVE={camara:null,camaraErro:null,quando:null};
@@ -551,6 +609,113 @@ async function carregarAoVivo(){
   const st=document.getElementById("stamp");
   if(ok&&quando){const d=new Date(quando); st.textContent=`AO VIVO · CONSULTADO ${d.toLocaleDateString("pt-BR")} ${d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}`;}
   if(ok){const y=scrollY; route(); scrollTo(0,y);}
+}
+
+// ---------- Aba Prioridades: estudo de temas e plano de curto, médio e longo prazo ----------
+let PR_TEMA="";
+const prFmt=v=>Number(v).toLocaleString("pt-BR",{maximumFractionDigits:2});
+function prRanking(){
+  const tot=PR.criterios.reduce((s,c)=>s+c.peso,0);
+  return PR.temas.map(t=>({...t,nota:Math.round(PR.criterios.reduce((s,c)=>s+t[c.criterio]*c.peso,0)/tot*100)/100}))
+    .sort((a,b)=>b.nota-a.nota).map((t,i)=>({...t,pos:i+1}));
+}
+function prInd(id){return PR.indicadores.find(x=>x.id===id);}
+function prTile(id,label,unit){
+  const r=prInd(id);
+  return `<div class="kpi"><p class="k">${esc(label)}</p><p class="v">${esc(prFmt(r.valor))}${unit?` <small>${esc(unit)}</small>`:""}</p>
+    <p class="n">${esc(r.nota)}</p><p class="src" style="margin-top:8px"><a href="${r.url}" target="_blank" rel="noopener">${esc(r.fonte)} · ${esc(r.referencia)}</a></p></div>`;
+}
+function prLongev(){
+  const media=PR.longevidade.find(r=>r.grupo==="media").anos;
+  const rows=PR.longevidade.filter(r=>r.grupo!=="media");
+  const lo=55,hi=85,X=v=>(v-lo)/(hi-lo)*100;
+  return `<div class="pr-dots">${rows.map(r=>{const up=r.anos>=media,a=X(Math.min(r.anos,media)),b=X(Math.max(r.anos,media)),dif=r.anos-media;
+    const cor=up?"var(--ink-fill)":"var(--warn)";
+    return `<div class="row" data-tip="${esc(r.distrito)}: ${r.anos} anos · ${up?prFmt(dif)+" acima":prFmt(-dif)+" abaixo"} da média">
+      <span class="lbl">${esc(r.distrito)}</span>
+      <span class="track"><span class="avg" style="left:${X(media)}%"></span><span class="seg" style="left:${a}%;width:${b-a}%;background:${cor}"></span><span class="dot" style="left:${X(r.anos)}%;background:${cor}"></span></span>
+      <span class="val">${r.anos}</span></div>`}).join("")}</div>
+    <div class="pr-axis" style="margin-left:0"><span>${lo} anos</span><span>Linha tracejada: média da cidade, ${media} anos</span><span>${hi} anos</span></div>`;
+}
+function prBoard(){
+  const rk=prRanking(),ordem=rk.map(t=>t.id);
+  const H=[["Curto","Curto prazo","2026 a 2027 · resultados em até 1 ano"],["Médio","Médio prazo","2028 a 2030 · até o fim do próximo mandato"],["Longo","Longo prazo","2031 a 2040 · horizonte do Plano Diretor"]];
+  return H.map(([h,t,sub])=>{
+    const lista=PR.acoes.filter(a=>a.horizonte===h&&(!PR_TEMA||a.tema_id===PR_TEMA)).sort((a,b)=>ordem.indexOf(a.tema_id)-ordem.indexOf(b.tema_id));
+    return `<div class="pr-col"><header><b>${t}</b><span>${sub}</span></header>${lista.map(a=>{const tm=PR.temas.find(x=>x.id===a.tema_id);
+      return `<article class="pr-act"><span class="tag">${esc(tm?tm.tema:a.tema_id)}</span><h4>${esc(a.acao)}</h4><p>${esc(a.detalhe)}</p>
+        <dl><dt>Onde</dt><dd>${esc(a.onde)}</dd><dt>Como medir</dt><dd>${esc(a.indicador)}</dd></dl></article>`}).join("")}</div>`;}).join("");
+}
+function prDiag(){
+  if(!PR_TEMA) return `<div class="pr-diag" hidden></div>`;
+  const t=PR.temas.find(x=>x.id===PR_TEMA);
+  return `<div class="pr-diag"><span>${esc(t.diagnostico)}</span><small>Onde começar: ${esc(t.territorios)}</small></div>`;
+}
+function prRows(){
+  const crit=["gravidade","pessoas","desigualdade","efeito","alcance"];
+  return prRanking().map(t=>`<tr data-tema="${t.id}" tabindex="0" class="${PR_TEMA===t.id?"on":""}" aria-label="Ver plano de ação de ${esc(t.tema)}">
+    <td class="pr-pos">${t.pos}</td><td class="pr-tema">${esc(t.tema)}</td>
+    <td class="pr-nota"><div class="pr-bar"><div class="t"><div class="f" style="width:${t.nota/5*100}%"></div></div><span>${prFmt(t.nota)}</span></div></td>
+    ${crit.map(c=>`<td class="pr-crit"><span class="pr-pips" aria-hidden="true">${[1,2,3,4,5].map(i=>`<i class="${i<=t[c]?"on":""}"></i>`).join("")}</span> <span style="color:var(--muted);font-size:12px">${t[c]}</span></td>`).join("")}</tr>`).join("");
+}
+function prioridadesView(){
+  const gap=prInd("longevidade_gap").valor;
+  return `<div class="lede"><div><p class="eyebrow">Estudo de prioridades · Cidade de São Paulo</p><h2>Prioridades</h2></div>
+    <p>Quem nasce em Alto de Pinheiros vive em média <b>${gap} anos</b> a mais do que quem nasce em Anhanguera. Este estudo coloca primeiro o que custa vidas e pesa mais na periferia, e propõe o que fazer no curto, no médio e no longo prazo.</p></div>
+
+  <section class="block" style="margin-top:0"><p class="eyebrow">Onde a cidade está hoje</p>
+    <div class="pr-tiles">
+      ${prTile("longevidade_gap","Diferença na idade média ao morrer entre distritos","anos")}
+      ${prTile("mort_inf_bras","Mortalidade infantil no Brás, a maior da cidade","por mil")}
+      ${prTile("risco","Moradias em área de risco de deslizamento","")}
+      ${prTile("rua","Pessoas em situação de rua no CadÚnico","")}
+      ${prTile("alfabetizacao","Crianças alfabetizadas aos 7 anos","%")}
+      ${prTile("seguranca_pesquisa","Paulistanos que citam segurança como maior problema","%")}
+    </div>
+    <div class="grid" style="margin-top:16px">
+      <div class="panel span-7"><h3>Idade média ao morrer, por distrito</h3><p class="sub">Os cinco distritos com maior e os quatro com menor idade média ao morrer, contra a média da cidade.</p>
+        ${prLongev()}<p class="src">Fonte: <a href="${prInd("longevidade_gap").url}" target="_blank" rel="noopener">Mapa da Desigualdade 2025, Rede Nossa São Paulo</a></p></div>
+      <div class="panel span-5"><h3>Territórios prioritários</h3><p class="sub">Distritos onde os piores indicadores se concentram. É por eles que as ações começam.</p>
+        <ul class="pr-terr">${PR.territorios.map(t=>`<li><b>${esc(t.distrito)}</b><small>Região ${esc(t.regiao)} · ${esc(t.motivo)}</small></li>`).join("")}</ul></div>
+    </div></section>
+
+  <section class="block"><p class="eyebrow">Os temas, do mais ao menos relevante</p>
+    <div class="panel"><p class="sub">Cada tema recebeu uma nota de 1 a 5 em cinco critérios, com pesos diferentes. A nota final é a média ponderada. Clique em um tema para ver o plano de ação dele.</p>
+      <div class="tscroll"><table class="pr-rank"><thead><tr><th>#</th><th>Tema</th><th>Nota de prioridade</th>
+        ${PR.criterios.map(c=>`<th class="pr-crit">${esc(c.nome)}</th>`).join("")}</tr></thead><tbody id="pr-rows">${prRows()}</tbody></table></div></div></section>
+
+  <section class="block" id="pr-plano"><p class="eyebrow">Plano de ação</p>
+    <p class="sub" style="color:var(--muted);margin:0 0 14px;max-width:80ch">Curto prazo cabe no orçamento e na gestão atuais. Médio prazo precisa de obra, contratação ou lei. Longo prazo leva mais de um mandato e precisa virar política de Estado.</p>
+    <div class="filters"><button class="chip" aria-pressed="${!PR_TEMA}" data-pr="">Todos</button>
+      ${prRanking().map(t=>`<button class="chip" aria-pressed="${PR_TEMA===t.id}" data-pr="${t.id}">${esc(t.tema)}</button>`).join("")}</div>
+    <div id="pr-diag" style="margin-bottom:14px">${prDiag()}</div>
+    <div class="pr-board" id="pr-board">${prBoard()}</div></section>
+
+  <section class="block"><details class="panel pr-method"><summary>Como as prioridades foram definidas e o que fica de fora</summary>
+    <div class="tscroll" style="margin-top:12px"><table class="t"><thead><tr><th>Critério</th><th>Pergunta</th><th class="r">Peso</th></tr></thead><tbody>
+      ${PR.criterios.map(c=>`<tr><td>${esc(c.nome)}</td><td style="white-space:normal">${esc(c.pergunta)}</td><td class="r">${c.peso}%</td></tr>`).join("")}</tbody></table></div>
+    <ul>
+      <li>As notas de 1 a 5 são um julgamento deste estudo a partir dos dados citados. Com outros pesos, a ordem muda.</li>
+      <li>Segurança é o problema mais citado, mas a polícia é do Governo do Estado. Por isso o tema tem nota baixa em alcance da Prefeitura.</li>
+      <li>Os números vêm de anos diferentes, de 2023 a 2026. O de áreas de risco é de dezembro de 2023.</li>
+      <li>A população de rua aparece pelo CadÚnico, que soma cadastros. O censo municipal usa outro método e dá números menores.</li>
+      <li>A alfabetização usa o indicador nacional do Inep. A avaliação própria da Prefeitura dá resultados mais altos.</li>
+      <li>Ficaram de fora como temas próprios: saneamento e água (Sabesp e Estado), causa animal, turismo e grandes eventos.</li>
+    </ul></details></section>`;
+}
+function wirePrioridades(root){
+  const refresh=()=>{
+    root.querySelector("#pr-rows").innerHTML=prRows();
+    root.querySelector("#pr-diag").innerHTML=prDiag();
+    root.querySelector("#pr-board").innerHTML=prBoard();
+    root.querySelectorAll("[data-pr]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.pr===PR_TEMA)));
+  };
+  const pick=id=>{PR_TEMA=id;refresh();};
+  root.querySelectorAll("[data-pr]").forEach(b=>b.addEventListener("click",()=>pick(b.dataset.pr)));
+  const rows=root.querySelector("#pr-rows");
+  const go=tr=>{pick(tr.dataset.tema);root.querySelector("#pr-plano").scrollIntoView({behavior:"smooth",block:"start"});};
+  rows.addEventListener("click",e=>{const tr=e.target.closest("tr[data-tema]");if(tr)go(tr);});
+  rows.addEventListener("keydown",e=>{const tr=e.target.closest("tr[data-tema]");if(tr&&(e.key==="Enter"||e.key===" ")){e.preventDefault();go(tr);}});
 }
 
 route();
