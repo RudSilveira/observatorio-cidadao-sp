@@ -1,13 +1,16 @@
 // Indicadores econômicos e populacionais.
-// Fontes: Banco Central (SGS) e IBGE (API de agregados).
+// Fonte: Banco Central (SGS).
+// A população (IBGE) fica como dado de referência na página: é uma estimativa anual,
+// e a API do IBGE não responde a tempo quando consultada dos servidores da Netlify, fora do Brasil.
 import { getJSON, settle, json, brDateToISO } from "../lib/fonte.mjs";
 
 // "ultimos/N" aceita no máximo 20 pontos.
 const SGS = (codigo, n) =>
   `https://api.bcb.gov.br/dados/serie/bcdata.sgs.${codigo}/dados/ultimos/${n}?formato=json`;
 // Consulta por intervalo de datas (dd/mm/aaaa), usada na Selic, que é diária e tem datas futuras.
-const brData = (d) =>
-  `${String(d.getUTCDate()).padStart(2, "0")}/${String(d.getUTCMonth() + 1).padStart(2, "0")}/${d.getUTCFullYear()}`;
+// Datas no horário de Brasília (os servidores da Netlify usam UTC).
+const isoSP = (d) => d.toLocaleDateString("sv-SE", { timeZone: "America/Sao_Paulo" }); // aaaa-mm-dd
+const brData = (d) => isoSP(d).split("-").reverse().join("/");
 const SGS_PERIODO = (codigo, dias) => {
   const fim = new Date();
   const ini = new Date(fim.getTime() - dias * 24 * 3600 * 1000);
@@ -19,38 +22,11 @@ const SGS_PERIODO = (codigo, dias) => {
 //     433  IPCA variação mensal (%)
 //     432  Meta da taxa Selic (% a.a.)  -- a série já traz datas futuras, até a próxima reunião do Copom
 //   24369  Taxa de desocupação, PNAD Contínua (%), trimestre móvel
-const hojeISO = () => new Date().toISOString().slice(0, 10);
+const hojeISO = () => isoSP(new Date());
 const serie = (arr) =>
   (Array.isArray(arr) ? arr : [])
     .map((p) => ({ data: brDateToISO(p.data), valor: Number(String(p.valor).replace(",", ".")) }))
     .filter((p) => p.data && Number.isFinite(p.valor) && p.data <= hojeISO());
-
-// IBGE, tabela 6579 (estimativas de população), variável 9324.
-// Uma consulta por localidade: N1 = Brasil, N3 35 = Estado de SP, N6 3550308 = município de São Paulo.
-const LOCAIS = { brasil: "N1[all]", estado: "N3[35]", cidade: "N6[3550308]" };
-const ibgePop = (loc) =>
-  `https://servicodados.ibge.gov.br/api/v3/agregados/6579/periodos/-6/variaveis/9324?localidades=${encodeURIComponent(loc)}`;
-
-async function populacao() {
-  const out = {};
-  const falhas = [];
-  await Promise.all(
-    Object.entries(LOCAIS).map(async ([chave, loc]) => {
-      try {
-        const r = await getJSON(ibgePop(loc));
-        const s = r?.[0]?.resultados?.[0]?.series?.[0]?.serie || {};
-        const anos = Object.keys(s).filter((a) => Number.isFinite(Number(s[a]))).sort();
-        const ano = anos.pop();
-        if (ano) out[chave] = { ano, valor: Number(s[ano]) };
-        else falhas.push(chave);
-      } catch (e) {
-        falhas.push(`${chave}: ${e.message}`);
-      }
-    })
-  );
-  if (!Object.keys(out).length) throw new Error(`IBGE sem dados de população (${falhas.join("; ")})`);
-  return out;
-}
 
 export default async () => {
   const { data, erros } = await settle({
@@ -58,10 +34,9 @@ export default async () => {
     ipcaMes: async () => serie(await getJSON(SGS(433, 2))),
     selic: async () => serie(await getJSON(SGS_PERIODO(432, 15))),
     desemprego: async () => serie(await getJSON(SGS(24369, 13))),
-    populacao,
   });
 
-  return json({ fonte: "Banco Central (SGS) e IBGE", ...data, erros }, { maxAge: 6 * 3600 });
+  return json({ fonte: "Banco Central (SGS)", ...data, erros }, { maxAge: 6 * 3600 });
 };
 
 export const config = { path: "/api/indicadores" };
