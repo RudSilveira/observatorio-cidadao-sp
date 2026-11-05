@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Painel cidadão que acompanha governo, orçamento, legislativo e projetos de lei do Brasil, do Estado e da cidade de São Paulo, com fontes oficiais.">
+<title>Observatório Cidadão SP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: ficha de protocolo — cabeçalho com abas por esfera de governo, seções empilhadas em grade de 12 colunas; números de processo em mono como no Diário Oficial */
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --fg:#141a24; --muted:#5a6475; --faint:#8b94a3;
+  --line:#dde2ea; --ink:#1f4fd1; --ink-soft:#dbe5fb; --ink-fill:#2d5be0; --ghost:#b9c8ef;
+  --good:#1a7f4b; --good-bg:#e1f3e9; --warn:#a15c00; --warn-bg:#fbeed8;
+  --f-display:"Archivo","Arial Narrow",Arial,sans-serif;
+  --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f131a; --surface:#171c25; --fg:#e8ecf2; --muted:#a0aab9; --faint:#6f7a8b;
+  --line:#2a3240; --ink:#8fb0ff; --ink-soft:#1e2a45; --ink-fill:#6f97f5; --ghost:#34466e;
+  --good:#5fcf94; --good-bg:#15301f; --warn:#f0b35c; --warn-bg:#35270f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f131a; --surface:#171c25; --fg:#e8ecf2; --muted:#a0aab9; --faint:#6f7a8b;
+  --line:#2a3240; --ink:#8fb0ff; --ink-soft:#1e2a45; --ink-fill:#6f97f5; --ghost:#34466e;
+  --good:#5fcf94; --good-bg:#15301f; --warn:#f0b35c; --warn-bg:#35270f; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{background:var(--bg);color:var(--fg);font:15px/1.55 var(--f-body);-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:var(--ink)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--ink);outline-offset:2px;border-radius:4px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.num{font-variant-numeric:tabular-nums}
+
+header.top{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+.brand{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px;padding-block:18px 10px}
+.brand h1{margin:0;font:800 clamp(22px,3.4vw,30px)/1.05 var(--f-display);font-stretch:80%;letter-spacing:-.01em;text-transform:uppercase}
+.brand h1 span{color:var(--ink)}
+.stamp{font:500 11.5px var(--f-mono);color:var(--muted);border:1px solid var(--line);border-radius:3px;padding:2px 7px;letter-spacing:.02em}
+nav.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+nav.tabs a{flex:none;text-decoration:none;color:var(--muted);font:600 14px var(--f-body);padding:10px 14px 12px;border-bottom:3px solid transparent}
+nav.tabs a[aria-current="page"]{color:var(--fg);border-bottom-color:var(--ink)}
+nav.tabs a:hover{color:var(--fg)}
+
+main{padding-block:28px 64px}
+.lede{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:24px;align-items:end;margin-bottom:28px}
+.lede h2{margin:0 0 6px;font:800 clamp(30px,5vw,48px)/1 var(--f-display);font-stretch:78%;text-transform:uppercase;text-wrap:balance}
+.lede p{margin:0;color:var(--muted);max-width:60ch}
+.eyebrow{font:600 11.5px var(--f-body);text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0 0 8px}
+
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:20px;min-width:0}
+.panel h3{margin:0 0 4px;font:700 19px/1.2 var(--f-display);font-stretch:90%}
+.panel .sub{margin:0 0 16px;color:var(--muted);font-size:13.5px}
+.span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-7{grid-column:span 7}.span-6{grid-column:span 6}.span-5{grid-column:span 5}.span-4{grid-column:span 4}
+section.block{margin-top:36px}
+section.block > .eyebrow{border-top:2px solid var(--fg);padding-top:10px;margin-bottom:14px}
+
+/* executivo */
+.exec{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 18px;align-items:start}
+.exec .role{grid-column:1/-1}
+.seal{width:52px;height:52px;border-radius:50%;border:2px solid var(--ink);display:grid;place-items:center;font:800 15px var(--f-display);color:var(--ink);font-stretch:80%}
+.exec .name{font:700 22px/1.15 var(--f-display);font-stretch:88%;margin:0}
+.exec .meta{color:var(--muted);font-size:13.5px;margin:2px 0 0}
+.result{margin-top:14px;grid-column:1/-1}
+.vbar{display:flex;height:12px;border-radius:3px;overflow:hidden;gap:2px;background:var(--surface)}
+.vbar i{display:block;height:100%}
+.vlegend{display:flex;justify-content:space-between;gap:12px;font-size:13px;margin-top:6px;flex-wrap:wrap}
+.vlegend b{font-variant-numeric:tabular-nums}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.kpi{border:1px solid var(--line);border-radius:6px;padding:14px 16px;background:var(--surface);min-width:0}
+.kpi .k{font-size:12.5px;color:var(--muted);margin:0}
+.kpi .v{font:700 30px/1.1 var(--f-display);font-stretch:85%;margin:6px 0 2px;font-variant-numeric:tabular-nums}
+.kpi .v small{font-size:15px;font-weight:600;color:var(--muted)}
+.kpi .n{font-size:12.5px;color:var(--muted);margin:0}
+.pill{display:inline-flex;align-items:center;gap:4px;font:600 11.5px var(--f-body);padding:2px 8px;border-radius:99px;margin-top:8px}
+.pill.warn{background:var(--warn-bg);color:var(--warn)}
+.pill.good{background:var(--good-bg);color:var(--good)}
+.pill.info{background:var(--ink-soft);color:var(--ink)}
+
+/* barras horizontais */
+.hbars{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px 10px;align-items:center;font-size:13.5px}
+.hbars .lbl{color:var(--fg);white-space:nowrap}
+.hbars .track{position:relative;height:14px}
+.hbars .fill{position:absolute;left:0;top:0;height:100%;background:var(--ink-fill);border-radius:0 4px 4px 0;min-width:2px}
+.hbars .ghost{position:absolute;left:0;top:0;height:100%;background:var(--ghost);border-radius:0 4px 4px 0}
+.hbars.paired .track{height:18px}
+.hbars.paired .fill{top:5px;height:13px}
+.hbars.paired .ghost{top:0;height:4px;border-radius:0 2px 2px 0}
+.hbars .val{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.hbars .row{display:contents}
+.hbars .row:hover .fill{background:var(--ink)}
+.legend{display:flex;gap:16px;font-size:12.5px;color:var(--muted);margin:0 0 12px;flex-wrap:wrap}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:14px;height:8px;border-radius:2px}
+
+/* seats grid (hemiciclo em pontos) */
+.seats{display:flex;flex-wrap:wrap;gap:3px;margin:4px 0 14px}
+.seats i{width:10px;height:10px;border-radius:50%;background:var(--ghost)}
+.seats i.on{background:var(--ink-fill)}
+
+/* tramitação */
+.bills{display:grid;gap:12px}
+.bill{border:1px solid var(--line);border-radius:6px;padding:16px;background:var(--surface);display:grid;gap:8px;min-width:0}
+.bill .head{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;justify-content:space-between}
+.bill .proto{font:500 13px var(--f-mono);color:var(--ink);letter-spacing:.01em}
+.bill .date{font:12.5px var(--f-mono);color:var(--muted)}
+.bill h4{margin:0;font:700 17px/1.25 var(--f-display);font-stretch:92%;text-wrap:balance}
+.bill p{margin:0;color:var(--muted);font-size:14px;max-width:75ch}
+.bill .vote{font-size:13px;color:var(--fg)}
+.track-steps{list-style:none;margin:4px 0 0;padding:0;display:flex;gap:2px;overflow-x:auto}
+.track-steps li{flex:1 1 0;min-width:84px;font-size:11.5px;color:var(--faint);padding-top:8px;border-top:4px solid var(--line);line-height:1.3}
+.track-steps li.done{border-top-color:var(--ink-fill);color:var(--muted)}
+.track-steps li.now{border-top-color:var(--ink);color:var(--fg);font-weight:600}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.filters input{flex:1 1 220px;min-width:0;font:14px var(--f-body);padding:9px 12px;border:1px solid var(--line);border-radius:5px;background:var(--surface);color:var(--fg)}
+.chip{font:600 12.5px var(--f-body);padding:7px 12px;border-radius:99px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.empty{color:var(--muted);font-size:14px;padding:12px 0}
+
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+.tscroll{overflow-x:auto}
+table.t th,table.t td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+table.t th{font-weight:600;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+table.t td.r,table.t th.r{text-align:right;font-variant-numeric:tabular-nums}
+
+.facts{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.facts li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;border-bottom:1px dashed var(--line);padding-bottom:8px;font-size:14px}
+.facts li span:last-child{font-variant-numeric:tabular-nums;font-weight:600;text-align:right}
+
+.src{font-size:12px;color:var(--faint);margin:12px 0 0}
+.src a{color:var(--muted)}
+.live{display:inline-flex;align-items:center;gap:5px;font:600 11px var(--f-body);text-transform:uppercase;letter-spacing:.06em;color:var(--good)}
+.live::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--good)}
+.votes{list-style:none;margin:0;padding:0;display:grid;gap:10px;max-height:520px;overflow-y:auto}
+.votes li{border-bottom:1px solid var(--line);padding-bottom:10px;font-size:13.5px;display:grid;gap:4px}
+.votes .vh{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.note{background:var(--ink-soft);border-radius:6px;padding:14px 16px;font-size:14px;color:var(--fg)}
+.method ol{padding-left:20px;margin:8px 0 0;display:grid;gap:6px;max-width:75ch}
+.srclist{columns:2 300px;gap:24px;font-size:13.5px;padding-left:18px}
+.srclist li{break-inside:avoid;margin-bottom:6px}
+
+#tip{position:fixed;pointer-events:none;background:var(--fg);color:var(--bg);font-size:12.5px;padding:6px 9px;border-radius:4px;z-index:20;max-width:240px}
+footer{border-top:1px solid var(--line);padding-block:20px;color:var(--muted);font-size:12.5px}
+
+@media (max-width:860px){
+  .lede{grid-template-columns:1fr}
+  .span-8,.span-7,.span-6,.span-5,.span-4{grid-column:span 12}
+}
+@media (prefers-reduced-motion:no-preference){
+  .fill{transition:width .5s ease}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <h1>Observatório <span>Cidadão</span> SP</h1>
+      <span class="stamp" id="stamp">DADOS COLETADOS EM 04/11/2026</span>
+    </div>
+    <nav class="tabs" aria-label="Esfera de governo">
+      <a href="#brasil" data-view="brasil">Brasil</a>
+      <a href="#estado" data-view="estado">Estado de São Paulo</a>
+      <a href="#cidade" data-view="cidade">Cidade de São Paulo</a>
+      <a href="#fontes" data-view="fontes">Fontes e método</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="app"></main>
+<div id="tip" hidden></div>
+
+<footer>
+  <div class="wrap">Projeto cidadão, sem vínculo partidário. Todo número tem link para a fonte original. Encontrou um erro? Avise quem compartilhou esta página com você.</div>
+</footer>
+
+<script>
+const D = {
+brasil:{
+  titulo:"Brasil",
+  lede:"Governo federal, Congresso Nacional e a bancada eleita por São Paulo. Economia, orçamento da União e o que está em votação.",
+  exec:{sigla:"BR",cargo:"Presidente da República",nome:"Luiz Inácio Lula da Silva",partido:"PT",mandato:"Mandato atual 2023–2026 · reeleito para 2027–2030",
+    eleicao:{titulo:"2º turno, 25/10/2026 · votos válidos",a:["Lula (PT)",51.79,"64.256.232"],b:["Flávio Bolsonaro (PL)",48.21,"59.826.041"],extra:"Abstenção de cerca de 19,2%"},
+    fonte:["TSE","https://www.tse.jus.br/comunicacao/noticias/2026/Outubro/presidente-do-tse-anuncia-reeleicao-de-lula-e-faz-balanco-do-2o-turno-das-eleicoes-2026"]},
+  kpis:[
+    {id:"ipca",k:"Inflação (IPCA) em 12 meses",v:"4,58",u:"%",n:"Até set/2026 · 0,82% no mês",pill:["warn","Acima do teto da meta (4,5%)"],src:"https://agenciabrasil.ebc.com.br/economia/noticia/2026-10/inflacao-oficial-de-setembro-fica-em-082-mostra-ibge"},
+    {id:"selic",k:"Taxa Selic",v:"13,75",u:"% a.a.",n:"Mantida pelo Copom em 04/11/2026, por unanimidade",pill:["info","Fim do ciclo de cortes"],src:"https://www.dgabc.com.br/Noticia/4366888/bc-copom-interrompe-ciclo-de-calibracao-e-mantem-taxa-selic-em-13-75-ao-ano"},
+    {id:"desemprego",k:"Desemprego",v:"5,2",u:"%",n:"Trimestre jul–set/2026 · 5,63 milhões de pessoas",pill:["good","Menor da série para o período"],src:"https://diariodonordeste.verdesmares.com.br/negocios/taxa-de-desemprego-no-brasil-cai-e-chega-a-52-no-3-trimestre-de-2026-1.3802435"},
+    {k:"PIB",v:"+0,5",u:"%",n:"2º trimestre de 2026 frente ao 1º",src:"https://agenciagov.ebc.com.br/noticias/202609/pib-cresce-0-5-no-segundo-trimestre-aponta-ibge"},
+    {id:"popBrasil",k:"População estimada",v:"213,4",u:"mi",n:"IBGE, referência 01/07/2025",src:"https://www.brasildefato.com.br/2025/08/28/populacao-brasileira-chega-a-2134-milhoes-em-julho-de-2025/"}
+  ],
+  orcamento:{titulo:"Orçamento da União para 2027",proto:"PLN 24/2026",
+    texto:"Enviado ao Congresso em 31/08/2026. Prevê despesas de cerca de R$ 2,8 trilhões e meta de superávit primário de R$ 18,6 bilhões (pouco mais de 0,1% do PIB).",
+    fatos:[["Salário mínimo proposto para 2027","R$ 1.741"],["Salário mínimo em 2026","R$ 1.621"],["Crescimento do PIB previsto","2,46%"],["Inflação prevista","3,6%"],["Selic média prevista","12,53%"],["Dólar médio previsto","R$ 5,22"]],
+    etapas:["Enviado pelo Executivo","Comissão Mista de Orçamento","Plenário do Congresso","Sanção"],agora:1,
+    fontes:[["Agência Senado","https://www12.senado.leg.br/noticias/materias/2026/08/31/executivo-envia-orcamento-de-2027-ao-congresso-com-minimo-de-r-1.741"],["Poder360","https://www.poder360.com.br/poder-governo/governo-estima-despesas-de-r-28-tri-e-superavit-de-r-186-bi-em-2027/"]]},
+  casa:{titulo:"Bancada paulista eleita para a Câmara dos Deputados",sub:"70 cadeiras · legislatura 2027–2031 · eleição de 04/10/2026",total:70,
+    partidos:[["PL",19],["PT",11],["PSOL",6],["Podemos",6],["Republicanos",6],["PSD",6],["MDB",4],["PP",3],["Novo",2],["PSB",2],["União Brasil",2],["Missão",1],["PSDB",1],["PRD",1]],
+    destaque:"Mais votados: Lucas Pavanato (PL), 3.038.438 votos; Erika Hilton (PSOL), 1.596.472; Sâmia Bomfim (PSOL), 583.107.",
+    fonte:["Agência Brasil","https://agenciabrasil.ebc.com.br/politica/noticia/2026-10/eleicoes-2026-confira-os-deputados-federais-eleitos-por-sao-paulo"]},
+  senado:{titulo:"Senadores por São Paulo",
+    linhas:[["Astronauta Marcos Pontes","PL","2023–2031","271.112,32"],["Giordano","Podemos","2019–2027","375.867,04"],["Mara Gabrilli","PSD","2019–2027","246.286,12"]],
+    eleitos:"Eleitos em 04/10/2026 para as vagas que abrem em 2027: Guilherme Derrite (PP) e André do Prado (PL).",
+    fontes:[["Senado Federal","https://www25.senado.leg.br/web/senadores/por-uf/-/uf/SP"],["Correio da Manhã (cota parlamentar)","https://www.correiodamanha.com.br/nacional/sao-paulo/estado-de-sao-paulo/2026/10/326545-senadores-de-sp-ja-gastaram-rs-893-mil-em-cota-parlamentar.html"],["Câmara Municipal de SP (eleitos)","https://www.saopaulo.sp.leg.br/blog/eleicoes-2026-tarcisio-e-reeleito-em-sao-paulo-disputa-para-a-presidencia-fica-para-o-segundo-turno/"]]},
+  projetos:[
+    {proto:"PEC 221/2019",casa:"Congresso",tema:"Trabalho",data:"16/10/2026",titulo:"Fim da escala 6x1",
+     texto:"Garante dois dias de descanso remunerado por semana e reduz a jornada máxima semanal, com transição. Parte das regras por setor ainda depende de regulamentação.",
+     voto:"Senado: 75 a 1 nos dois turnos (14/10/2026). Promulgada em 16/10/2026.",
+     etapas:["Câmara","Senado 1º turno","Senado 2º turno","Promulgação"],agora:3,fim:true,
+     fonte:"https://www12.senado.leg.br/noticias/materias/2026/10/14/senado-aprova-fim-da-6x1-em-primeiro-turno"},
+    {proto:"PLP 186/2026",casa:"Congresso",tema:"Economia",data:"15/10/2026",titulo:"Novo teto do MEI e perdão de dívidas",
+     texto:"Eleva o limite de faturamento do MEI de R$ 81 mil para R$ 110 mil em 2027 e R$ 140 mil em 2028, permite até dois empregados e perdoa dívidas na Dívida Ativa inscritas até 13/10/2026.",
+     voto:"Senado: 78 a 0. Segue para sanção presidencial.",
+     etapas:["Câmara","Senado","Sanção"],agora:2,
+     fonte:"https://agenciabrasil.ebc.com.br/politica/noticia/2026-10/senado-aprova-aumento-de-limite-e-perdao-de-divida-para-meis"},
+    {proto:"PL 3.220/2019",casa:"Congresso",tema:"Infraestrutura",data:"04/11/2026",titulo:"Compartilhamento de postes entre energia e telecom",
+     texto:"Permite à Aneel transferir a gestão comercial dos postes a uma empresa independente, manda Aneel e Anatel fixarem preço máximo e dá prazo de cinco anos para regularizar fios.",
+     voto:"Aprovado pela Câmara em 04/11/2026. Volta ao Senado.",
+     etapas:["Senado","Câmara","Senado (revisão)","Sanção"],agora:2,
+     fonte:"https://oliberal.com/variedades/camara-aprova-texto-para-partilha-de-postes-entre-empresas-de-energia-e-telecomunicacoes-1.1190567"}
+  ]
+},
+estado:{
+  titulo:"Estado de São Paulo",
+  lede:"Governo do Estado, Assembleia Legislativa (Alesp) e o orçamento paulista. O estado tem cerca de 46 milhões de habitantes e 645 municípios.",
+  exec:{sigla:"SP",cargo:"Governador do Estado",nome:"Tarcísio de Freitas",partido:"Republicanos",mandato:"Mandato atual 2023–2026 · reeleito para 2027–2030",
+    eleicao:{titulo:"1º turno, 04/10/2026 · votos válidos",a:["Tarcísio de Freitas (Republicanos)",62.65,""],b:["Fernando Haddad (PT)",36.42,""],extra:"Demais candidatos somaram 0,93%"},
+    fonte:["Câmara Municipal de SP","https://www.saopaulo.sp.leg.br/blog/eleicoes-2026-tarcisio-e-reeleito-em-sao-paulo-disputa-para-a-presidencia-fica-para-o-segundo-turno/"]},
+  kpis:[
+    {k:"Orçamento proposto para 2027",v:"411,2",u:"R$ bi",n:"Enviado à Alesp em 30/09/2026",pill:["info","+7,56% sobre 2026"],src:"https://www.dgabc.com.br/Noticia/4350206/sp-envia-a-alesp-proposta-de-r$-411-2-bilhoes-para-2027"},
+    {k:"Orçamento aprovado para 2026",v:"382,3",u:"R$ bi",n:"LOA aprovada pela Alesp em dez/2025",src:"https://www.dgabc.com.br/Noticia/4275032/alesp-aprova-orcamento-de-2026-com-receita-estimada-em-rs-382-3-bilhoes"},
+    {k:"Repasses aos 645 municípios",v:"86,3",u:"R$ bi",n:"Previstos na proposta de 2027",src:"https://www.dgabc.com.br/Noticia/4350206/sp-envia-a-alesp-proposta-de-r$-411-2-bilhoes-para-2027"},
+    {k:"Renovação da Alesp em 2027",v:"41,5",u:"%",n:"39 deputados novos entre 94",src:"https://www.portaldiadianews.com.br/noticias/politica/alesp-tera-renovacao-de-415-em-2027-39-novos-deputados-assumem-cadeiras-em-sao-paulo.html"}
+  ],
+  orcBars:{titulo:"Para onde vai o dinheiro em 2027",sub:"Proposta orçamentária do Estado, em R$ bilhões, por área selecionada",
+    linhas:[["Saúde",39.6],["Educação",36.2],["Segurança pública",28.8],["Ferrovias",14.0],["Rodovias e logística",5.9],["Habitação (Casa Paulista)",2.5],["Águas e enchentes (SP Águas)",1.0]],
+    nota:"Ferrovias: “mais de R$ 14 bi” segundo o governo. Educação inclui R$ 19,3 bi das universidades estaduais.",
+    fonte:["DGABC","https://www.dgabc.com.br/Noticia/4350206/sp-envia-a-alesp-proposta-de-r$-411-2-bilhoes-para-2027"]},
+  casa:{titulo:"Assembleia Legislativa eleita para 2027",sub:"94 cadeiras · 21ª legislatura · eleição de 04/10/2026",total:94,
+    partidos:[["PL",27],["PT",16],["PSD",9],["PSOL",9],["Republicanos",6],["Podemos",6],["MDB",5],["PP",5],["União Brasil",4],["PSB",3],["Novo",1],["Missão",1],["PSDB",1],["PRD",1]],
+    destaque:"PL mantém a maior bancada; PT segue como a segunda.",
+    fonte:["Brasil de Fato","https://www.brasildefato.com.br/2026/10/05/pl-e-psol-crescem-e-pt-se-mantem-como-forca-de-oposicao-conheca-os-deputados-estaduais-eleitos-por-sp/"]},
+  projetos:[
+    {proto:"PL 1.316/2025",casa:"Alesp",tema:"Educação",data:"04/11/2026",titulo:"Novas regras de carreira para professores da rede estadual",
+     texto:"Proposta do governo muda descontos por faltas, permite remoção por desempenho e vincula progressão a provas e avaliações. A Apeoesp contesta o modelo de classificação de docentes.",
+     voto:"Em urgência. Votação prevista para 03/11 foi adiada após protestos; sem nova data.",
+     etapas:["Apresentado (dez/2025)","Emenda (mai/2026)","Plenário","Sanção"],agora:2,
+     fonte:"https://bpmoney.com.br/politica/pl-carreira-professor-sp-volta-pauta-alesp/"},
+    {proto:"LOA 2027",casa:"Alesp",tema:"Orçamento",data:"30/09/2026",titulo:"Orçamento do Estado para 2027",
+     texto:"Receita estimada de R$ 411,2 bilhões, a maior já proposta. Saúde (R$ 39,6 bi), educação (R$ 36,2 bi) e segurança (R$ 28,8 bi) lideram.",
+     voto:"Em análise na Alesp. A do ano anterior foi votada em dezembro.",
+     etapas:["Enviado","Comissão de Finanças","Plenário","Sanção"],agora:1,
+     fonte:"https://www.dgabc.com.br/Noticia/4350206/sp-envia-a-alesp-proposta-de-r$-411-2-bilhoes-para-2027"}
+  ]
+},
+cidade:{
+  titulo:"Cidade de São Paulo",
+  lede:"Prefeitura, Câmara Municipal e o orçamento da capital, com cerca de 11,9 milhões de habitantes (IBGE, 2025).",
+  exec:{sigla:"SP",cargo:"Prefeito",nome:"Ricardo Nunes",partido:"MDB",mandato:"Mandato 2025–2028 · próxima eleição municipal em 2028",
+    fonte:["Prefeitura de São Paulo","https://prefeitura.sp.gov.br/w/prefeitura-elabora-or%C3%A7amento-anual-recorde-para-o-ano-2027-r-146-52-bilh%C3%B5es"]},
+  kpis:[
+    {k:"Orçamento proposto para 2027",v:"146,5",u:"R$ bi",n:"PL 752/2026, enviado em 30/09/2026",pill:["info","+6,6% sobre 2026"],src:"https://www.saopaulo.sp.leg.br/blog/orcamento-2027-comeca-a-ser-discutido-em-audiencia-publica-na-camara-municipal/"},
+    {k:"Investimentos previstos em 2027",v:"20,6",u:"R$ bi",n:"Inclui R$ 8,04 bi em operações de crédito",src:"https://prefeitura.sp.gov.br/w/prefeitura-elabora-or%C3%A7amento-anual-recorde-para-o-ano-2027-r-146-52-bilh%C3%B5es"},
+    {k:"Orçamento aprovado para 2026",v:"137,4",u:"R$ bi",n:"LOA 2026",src:"https://prefeitura.sp.gov.br/web/sampa-news/w/c%C3%A2mara-aprova-or%C3%A7amento-da-cidade-para-2026-com-valor-recorde-de-r-137-4-bilh%C3%B5es"},
+    {id:"popCidade",k:"População estimada",v:"11,9",u:"mi",n:"IBGE, referência 01/07/2025",src:"https://www.correiobraziliense.com.br/brasil/2025/08/7236652-cidades-brasileiras-com-mais-de-1-milhao-de-moradores.html"}
+  ],
+  orcPar:{titulo:"Orçamento por secretaria: 2026 e 2027",sub:"Em R$ bilhões. Barra cheia é a proposta de 2027; linha fina é o orçamento de 2026.",
+    linhas:[["Educação",30.55,33.53],["Saúde",25.42,27.76],["Transporte",11.18,13.96],["Infraestrutura e Obras",3.05,4.51],["Urbanismo e Licenciamento",2.70,3.09],["Subprefeituras (32)",2.13,2.27],["Segurança Urbana",1.84,2.05]],
+    fonte:["Prefeitura de São Paulo","https://prefeitura.sp.gov.br/w/prefeitura-elabora-or%C3%A7amento-anual-recorde-para-o-ano-2027-r-146-52-bilh%C3%B5es"]},
+  casa:{titulo:"Câmara Municipal de São Paulo",sub:"55 vereadores · legislatura 2025–2028 · presidente: Ricardo Teixeira (União), reeleito para 2026 com 49 votos",total:55,
+    partidos:[["PT",8],["MDB",7],["PL",7],["União",7],["Podemos",6],["PSOL",6],["PP",4],["PSB",3],["PSD",3],["Republicanos",2],["Novo",1],["PV",1]],
+    destaque:"",
+    fonte:["Câmara Municipal de SP","https://www.saopaulo.sp.leg.br/vereadores/membros/?filtro=partido"]},
+  projetos:[
+    {proto:"PL 752/2026",casa:"Câmara Municipal",tema:"Orçamento",data:"07/10/2026",titulo:"Orçamento da cidade para 2027",
+     texto:"R$ 146,5 bilhões, com R$ 20,6 bilhões em investimentos. Relator: Marcelo Messias (MDB). Primeira audiência pública em 07/10, com pedidos sobre segurança, cultura, assistência social e idosos.",
+     voto:"Em análise na Comissão de Finanças e Orçamento.",
+     etapas:["Enviado","Audiências públicas","Comissão de Finanças","1º turno","2º turno","Sanção"],agora:2,
+     fonte:"https://www.saopaulo.sp.leg.br/blog/orcamento-2027-comeca-a-ser-discutido-em-audiencia-publica-na-camara-municipal/"},
+    {proto:"PL 736/2026",casa:"Câmara Municipal",tema:"Habitação",data:"04/11/2026",titulo:"Regularização de imóveis no São Rafael, zona leste",
+     texto:"Corrige o traçado oficial de cerca de 700 m da Av. Jacu-Pêssego para permitir o registro dos imóveis de 890 famílias.",
+     voto:"Aprovado em 2º turno por unanimidade em 04/11/2026. Vai à sanção do prefeito.",
+     etapas:["Enviado pela Prefeitura","1º turno (28/10)","2º turno (04/11)","Sanção"],agora:3,
+     fonte:"https://www.saopaulo.sp.leg.br/blog/mais-de-850-familias-da-zona-leste-terao-os-imoveis-regularizados-apos-aprovacao-de-projeto-no-plenario/"},
+    {proto:"PL 699/2026",casa:"Câmara Municipal",tema:"Servidores",data:"04/11/2026",titulo:"Reajuste de gratificação dos auditores de controle interno",
+     texto:"Altera a carreira de Auditor Municipal de Controle Interno e reajusta a gratificação de controladoria.",
+     voto:"Aprovado em 2º turno em 04/11/2026. Contra: bancada do PSOL, Rubinho Nunes, Cris Monteiro e Janaina Paschoal.",
+     etapas:["Enviado pela Prefeitura","1º turno (14/10)","2º turno (04/11)","Sanção"],agora:3,
+     fonte:"https://www.saopaulo.sp.leg.br/blog/mais-de-850-familias-da-zona-leste-terao-os-imoveis-regularizados-apos-aprovacao-de-projeto-no-plenario/"},
+    {proto:"PL 1477/2025",casa:"Câmara Municipal",tema:"Direitos",data:"28/10/2026",titulo:"Dia municipal de luto pelas vítimas de feminicídio",
+     texto:"Cria data de memória em 17 de outubro. Um dos 46 projetos (de 56 em pauta) aprovados na sessão extraordinária virtual de 28/10.",
+     voto:"Aprovado em plenário em 28/10/2026.",
+     etapas:["Apresentado","Comissões","Plenário","Sanção"],agora:3,
+     fonte:"https://www.saopaulo.sp.leg.br/blog/camara-de-sp-aprova-46-projetos-em-sessao-virtual/"}
+  ]
+}
+};
+
+const FONTES = [
+ ["Tribunal Superior Eleitoral (TSE)","https://www.tse.jus.br/","Resultados das eleições"],
+ ["IBGE","https://www.ibge.gov.br/","Inflação, emprego, PIB, população"],
+ ["Banco Central (Copom)","https://www.bcb.gov.br/","Taxa Selic"],
+ ["Câmara dos Deputados · Dados Abertos","https://dadosabertos.camara.leg.br/","Deputados, proposições, votações, cota parlamentar"],
+ ["Senado Federal · Dados Abertos","https://www12.senado.leg.br/dados-abertos","Senadores, matérias, votações"],
+ ["Tesouro Nacional · SICONFI","https://siconfi.tesouro.gov.br/","Execução orçamentária de União, estados e municípios"],
+ ["Portal da Transparência","https://portaldatransparencia.gov.br/","Gastos federais"],
+ ["Alesp · Portal de dados","https://www.al.sp.gov.br/dados-abertos/","Deputados estaduais e projetos"],
+ ["Câmara Municipal de São Paulo","https://www.saopaulo.sp.leg.br/","Vereadores e projetos"],
+ ["Prefeitura de São Paulo · Orçamento","https://prefeitura.sp.gov.br/","Orçamento e indicadores da cidade"]
+];
+
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = (n,d=1) => n.toLocaleString("pt-BR",{minimumFractionDigits:d,maximumFractionDigits:d});
+const link = ([t,u]) => `<a href="${u}" target="_blank" rel="noopener">${esc(t)}</a>`;
+
+function execPanel(e){
+  let r="";
+  if(e.eleicao){
+    const x=e.eleicao, rest=Math.max(0,100-x.a[1]-x.b[1]);
+    r=`<div class="result"><p class="eyebrow" style="margin-bottom:6px">${esc(x.titulo)}</p>
+      <div class="vbar" role="img" aria-label="${esc(x.a[0])} ${fmt(x.a[1],2)}%, ${esc(x.b[0])} ${fmt(x.b[1],2)}%">
+        <i style="width:${x.a[1]}%;background:var(--ink-fill)" data-tip="${esc(x.a[0])}: ${fmt(x.a[1],2)}%${x.a[2]?" · "+x.a[2]+" votos":""}"></i>
+        <i style="width:${x.b[1]}%;background:var(--ghost)" data-tip="${esc(x.b[0])}: ${fmt(x.b[1],2)}%${x.b[2]?" · "+x.b[2]+" votos":""}"></i>
+        ${rest>0.2?`<i style="width:${rest}%;background:var(--line)" data-tip="Outros: ${fmt(rest,2)}%"></i>`:""}
+      </div>
+      <div class="vlegend"><span>${esc(x.a[0])} <b>${fmt(x.a[1],2)}%</b></span><span>${esc(x.b[0])} <b>${fmt(x.b[1],2)}%</b></span></div>
+      <p class="src" style="margin-top:4px">${esc(x.extra)}</p></div>`;
+  }
+  return `<div class="panel span-5"><div class="exec">
+    <p class="eyebrow role">Poder Executivo · ${esc(e.cargo)}</p>
+    <div class="seal" aria-hidden="true">${esc(e.sigla)}</div>
+    <div><p class="name">${esc(e.nome)}</p><p class="meta">${esc(e.partido)} · ${esc(e.mandato)}</p></div>
+    ${r}</div><p class="src">Fonte: ${link(e.fonte)}</p></div>`;
+}
+
+function kpiBlock(list){
+  return `<div class="kpis">${list.map(k=>`<div class="kpi">
+    <p class="k">${esc(k.k)}</p><p class="v">${esc(k.v)} <small>${esc(k.u)}</small></p>
+    <p class="n">${esc(k.n)}</p>${k.pill?`<span class="pill ${k.pill[0]}">${esc(k.pill[1])}</span>`:""}
+    <p class="src" style="margin-top:8px">${k.live?'<span class="live">ao vivo</span> ':""}<a href="${k.src}" target="_blank" rel="noopener">ver fonte</a></p></div>`).join("")}</div>`;
+}
+
+function casaPanel(c,span="span-7"){
+  const max=Math.max(...c.partidos.map(p=>p[1]));
+  let seats="";
+  c.partidos.forEach(([p,n],i)=>{for(let j=0;j<n;j++) seats+=`<i class="${i===0?"on":""}" data-tip="${esc(p)}: ${n} ${n>1?"cadeiras":"cadeira"}"></i>`;});
+  return `<div class="panel ${span}"><h3>${esc(c.titulo)}</h3><p class="sub">${esc(c.sub)}</p>
+    <div class="hbars">${c.partidos.map(([p,n])=>`<div class="row" data-tip="${esc(p)}: ${n} de ${c.total} (${fmt(n/c.total*100)}%)">
+      <span class="lbl">${esc(p)}</span><span class="track"><span class="fill" style="width:${n/max*100}%"></span></span><span class="val">${n}</span></div>`).join("")}</div>
+    ${c.destaque?`<p class="sub" style="margin:14px 0 0">${esc(c.destaque)}</p>`:""}
+    <p class="src">Cores neutras de propósito: o painel não associa partidos a cores. Fonte: ${link(c.fonte)}</p></div>`;
+}
+
+function steps(et,agora,fim){
+  return `<ol class="track-steps" aria-label="Tramitação">${et.map((s,i)=>`<li class="${i<agora||(fim&&i===agora)?"done":""} ${i===agora?"now":""}"${i===agora?' aria-current="step"':""}>${esc(s)}</li>`).join("")}</ol>`;
+}
+
+function billCard(b){
+  return `<article class="bill" data-text="${esc((b.proto+" "+b.titulo+" "+b.texto+" "+b.tema).toLowerCase())}" data-tema="${esc(b.tema)}">
+    <div class="head"><span class="proto">${esc(b.proto)} · ${esc(b.tema)}</span><span class="date">atualizado ${esc(b.data)}</span></div>
+    <h4>${esc(b.titulo)}</h4><p>${esc(b.texto)}</p><p class="vote">${esc(b.voto)}</p>
+    ${steps(b.etapas,b.agora,b.fim)}
+    <p class="src" style="margin:0"><a href="${b.fonte}" target="_blank" rel="noopener">ver fonte</a></p></article>`;
+}
+
+function projetosBlock(list,key){
+  const temas=[...new Set(list.map(b=>b.tema))];
+  return `<div class="filters"><input id="q-${key}" aria-label="Buscar projetos" type="search" placeholder="Buscar por número, tema ou palavra" data-q>
+    <button class="chip" aria-pressed="true" data-tema="">Todos</button>
+    ${temas.map(t=>`<button class="chip" aria-pressed="false" data-tema="${esc(t)}">${esc(t)}</button>`).join("")}</div>
+    <div class="bills">${list.map(billCard).join("")}</div><p class="empty" hidden>Nenhum projeto encontrado com esse filtro.</p>`;
+}
+
+function render(view){
+  const app=document.getElementById("app");
+  document.querySelectorAll("nav.tabs a").forEach(a=>{ if(a.dataset.view===view) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
+  if(view==="fontes"){ app.innerHTML=fontesView(); return; }
+  const d=D[view];
+  let h=`<div class="lede"><div><p class="eyebrow">Acompanhamento da gestão pública</p><h2>${esc(d.titulo)}</h2></div><p>${esc(d.lede)}</p></div>`;
+  h+=`<div class="grid">${execPanel(d.exec)}<div class="span-7" style="min-width:0">${kpiBlock(d.kpis)}</div></div>`;
+
+  // Orçamento
+  h+=`<section class="block"><p class="eyebrow">Orçamento</p><div class="grid">`;
+  if(d.orcamento){
+    const o=d.orcamento;
+    h+=`<div class="panel span-12"><div class="grid" style="gap:24px">
+      <div class="span-6" style="min-width:0"><p class="proto mono" style="color:var(--ink);margin:0 0 6px;font-size:13px">${esc(o.proto)}</p><h3>${esc(o.titulo)}</h3><p class="sub" style="margin-top:8px">${esc(o.texto)}</p>${steps(o.etapas,o.agora)}</div>
+      <div class="span-6" style="min-width:0"><ul class="facts">${o.fatos.map(f=>`<li><span>${esc(f[0])}</span><span>${esc(f[1])}</span></li>`).join("")}</ul></div></div>
+      <p class="src">Fontes: ${o.fontes.map(link).join(" · ")}</p></div>`;
+  }
+  if(d.orcBars){
+    const o=d.orcBars,max=Math.max(...o.linhas.map(l=>l[1]));
+    h+=`<div class="panel span-12"><h3>${esc(o.titulo)}</h3><p class="sub">${esc(o.sub)}</p>
+      <div class="hbars">${o.linhas.map(([a,v])=>`<div class="row" data-tip="${esc(a)}: R$ ${fmt(v)} bi"><span class="lbl">${esc(a)}</span><span class="track"><span class="fill" style="width:${v/max*100}%"></span></span><span class="val">${fmt(v)}</span></div>`).join("")}</div>
+      <p class="src">${esc(o.nota)} Fonte: ${link(o.fonte)}</p></div>`;
+  }
+  if(d.orcPar){
+    const o=d.orcPar,max=Math.max(...o.linhas.map(l=>Math.max(l[1],l[2])));
+    h+=`<div class="panel span-12"><h3>${esc(o.titulo)}</h3><p class="sub">${esc(o.sub)}</p>
+      <div class="legend"><span><i style="background:var(--ink-fill)"></i>2027 (proposta)</span><span><i style="background:var(--ghost);height:4px"></i>2026 (aprovado)</span></div>
+      <div class="hbars paired">${o.linhas.map(([a,v26,v27])=>{const pct=(v27/v26-1)*100;return `<div class="row" data-tip="${esc(a)}: R$ ${fmt(v26,2)} bi em 2026 → R$ ${fmt(v27,2)} bi em 2027 (${pct>=0?"+":""}${fmt(pct)}%)">
+        <span class="lbl">${esc(a)}</span><span class="track"><span class="ghost" style="width:${v26/max*100}%"></span><span class="fill" style="width:${v27/max*100}%"></span></span><span class="val">${fmt(v27,2)} <span style="color:var(--faint)">${pct>=0?"+":""}${fmt(pct)}%</span></span></div>`}).join("")}</div>
+      <p class="src">Fonte: ${link(o.fonte)}</p></div>`;
+  }
+  h+=`</div></section>`;
+
+  // Representantes
+  h+=`<section class="block"><p class="eyebrow">Representantes eleitos</p><div class="grid">${casaPanel(d.casa)}`;
+  if(d.senado){
+    const s=d.senado;
+    h+=`<div class="panel span-5"><h3>${esc(s.titulo)}</h3><p class="sub">${esc(s.sub||"Mandatos e gastos com cota parlamentar em 2026, até meados de outubro")}</p>
+      <div class="tscroll"><table class="t"><thead><tr><th>Senador(a)</th><th>Mandato</th><th class="r">Cota 2026 (R$)</th></tr></thead><tbody>
+      ${s.linhas.map(l=>`<tr><td>${esc(l[0])}<br><span style="color:var(--muted);font-size:12px">${esc(l[1])}</span></td><td class="mono" style="font-size:12.5px">${esc(l[2])}</td><td class="r">${esc(l[3])}</td></tr>`).join("")}
+      </tbody></table></div><p class="sub" style="margin:14px 0 0">${esc(s.eleitos)}</p>
+      <p class="src">Fontes: ${s.fontes.map(link).join(" · ")}</p></div>`;
+  } else {
+    h+=`<div class="panel span-5"><h3>Como acompanhar seus representantes</h3>
+      <p class="sub">Cada parlamentar tem página própria na casa legislativa, com projetos apresentados, presença e votos.</p>
+      <ul class="facts">${view==="estado"
+        ?`<li><span>Lista de deputados estaduais</span><span><a href="https://www.al.sp.gov.br/deputado/lista/" target="_blank" rel="noopener">Alesp</a></span></li><li><span>Execução orçamentária da Alesp</span><span><a href="https://www.al.sp.gov.br/alesp/execucao-orcamentaria/" target="_blank" rel="noopener">Alesp</a></span></li><li><span>Posse da nova legislatura</span><span>15/03/2027</span></li>`
+        :`<li><span>Vereadores por partido</span><span><a href="https://www.saopaulo.sp.leg.br/vereadores/membros/?filtro=partido" target="_blank" rel="noopener">Câmara SP</a></span></li><li><span>Próxima eleição municipal</span><span>out/2028</span></li><li><span>Sessões do plenário</span><span><a href="https://www.saopaulo.sp.leg.br/" target="_blank" rel="noopener">Câmara SP</a></span></li>`}</ul></div>`;
+  }
+  h+=`</div>`;
+  if(view==="brasil" && (LIVE.camara||LIVE.camaraErro)) h+=liveCamaraBlock();
+  h+=`</section>`;
+
+  h+=`<section class="block"><p class="eyebrow">Projetos em tramitação e aprovados recentemente</p>${projetosBlock(d.projetos,view)}</section>`;
+  app.innerHTML=h;
+  wireFilters(app);
+}
+
+function wireFilters(root){
+  const q=root.querySelector("[data-q]"); if(!q) return;
+  let tema="";
+  const apply=()=>{const t=q.value.trim().toLowerCase();let shown=0;
+    root.querySelectorAll(".bill").forEach(b=>{const ok=(!t||b.dataset.text.includes(t))&&(!tema||b.dataset.tema===tema);b.hidden=!ok;if(ok)shown++;});
+    root.querySelector(".empty").hidden=shown>0;};
+  q.addEventListener("input",apply);
+  root.querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>{tema=c.dataset.tema;root.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",x===c?"true":"false"));apply();}));
+}
+
+function fontesView(){
+  return `<div class="lede"><div><p class="eyebrow">Transparência sobre o próprio painel</p><h2>Fontes e método</h2></div>
+    <p>Como os números chegam aqui, com que frequência são atualizados e onde conferir cada um.</p></div>
+    <div class="grid">
+    <div class="panel span-7 method"><h3>Regras do painel</h3><ol>
+      <li>Só entram dados de órgãos oficiais (TSE, IBGE, Banco Central, casas legislativas, Tesouro, prefeitura e governo) ou de veículos que os reproduzem, sempre com link.</li>
+      <li>O painel descreve fatos: votos, valores, prazos e etapas. Não publica opinião sobre partidos, governos ou candidatos.</li>
+      <li>Partidos aparecem todos na mesma cor, para não sugerir alinhamento.</li>
+      <li>Valores de orçamento proposto mudam durante a votação. A etapa de cada projeto mostra se o número ainda é proposta.</li>
+      <li>Coleta desta versão: 04/11/2026, 23h (horário de Brasília).</li></ol></div>
+    <div class="panel span-5"><h3>Próximos passos do projeto</h3>
+      <p class="sub">Esta é a versão 1, com dados coletados manualmente. Para ficar sempre atualizado:</p>
+      <ul class="facts"><li><span>Atualização semanal automática</span><span>planejado</span></li><li><span>Consulta direta às APIs oficiais (BCB, IBGE, Câmara, Senado)</span><span>em funcionamento</span></li><li><span>Votos de cada parlamentar paulista</span><span>planejado</span></li><li><span>Gastos da cota da Câmara por deputado</span><span>planejado</span></li></ul></div>
+    <div class="panel span-12"><h3>Bases oficiais de dados abertos</h3><p class="sub">Onde qualquer pessoa pode conferir e baixar os dados.</p>
+      <div class="tscroll"><table class="t"><thead><tr><th>Órgão</th><th>O que oferece</th></tr></thead><tbody>
+      ${FONTES.map(f=>`<tr><td><a href="${f[1]}" target="_blank" rel="noopener">${esc(f[0])}</a></td><td>${esc(f[2])}</td></tr>`).join("")}</tbody></table></div></div>
+    </div>`;
+}
+
+// tooltip
+const tip=document.getElementById("tip");
+document.addEventListener("pointermove",e=>{const t=e.target.closest&&e.target.closest("[data-tip]");
+  if(!t){tip.hidden=true;return;} tip.textContent=t.dataset.tip;tip.hidden=false;
+  const w=tip.offsetWidth; let x=e.clientX+14; if(x+w>innerWidth-8)x=e.clientX-w-14; tip.style.left=Math.max(8,x)+"px"; tip.style.top=(e.clientY+16)+"px";});
+document.addEventListener("pointerleave",()=>tip.hidden=true);
+
+function route(){const v=(location.hash||"#brasil").slice(1);render(["brasil","estado","cidade","fontes"].includes(v)?v:"brasil");}
+addEventListener("hashchange",()=>{route();window.scrollTo(0,0);});
+// ---------- Camada ao vivo: consulta as funções /api/* do próprio site ----------
+const LIVE={camara:null,camaraErro:null,quando:null};
+const MESES=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+const mesAno=iso=>{const [y,m]=iso.split("-");return `${MESES[+m-1]}/${y}`;};
+const dataBR=iso=>{const [y,m,d]=iso.slice(0,10).split("-");return `${d}/${m}/${y}`;};
+const norm=s=>String(s).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+async function api(path){
+  const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),12000);
+  try{const r=await fetch(path,{signal:ctrl.signal,headers:{Accept:"application/json"}});
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    if(!(r.headers.get("content-type")||"").includes("json")) throw new Error("resposta não é JSON");
+    return await r.json();}
+  finally{clearTimeout(t);}
+}
+function setKpi(view,id,patch){const k=D[view].kpis.find(x=>x.id===id); if(k) Object.assign(k,patch,{live:true});}
+
+function aplicarIndicadores(j){
+  let n=0;
+  const last=a=>Array.isArray(a)&&a.length?a[a.length-1]:null;
+  const ip=last(j.ipca12m), im=last(j.ipcaMes);
+  if(ip){n++; setKpi("brasil","ipca",{v:fmt(ip.valor,2),n:`12 meses até ${mesAno(ip.data)}`+(im&&im.data===ip.data?` · ${fmt(im.valor,2)}% no mês`:""),
+    pill:ip.valor>4.5?["warn","Acima do teto da meta (4,5%)"]:ip.valor<1.5?["warn","Abaixo do piso da meta (1,5%)"]:["good","Dentro do intervalo da meta"],
+    src:"https://www3.bcb.gov.br/sgspub/localizarseries/localizarSeries.do?method=prepararTelaLocalizarSeries"});}
+  const se=last(j.selic);
+  if(se){n++; setKpi("brasil","selic",{v:fmt(se.valor,2),n:`Meta vigente em ${dataBR(se.data)}`,pill:["info","Definida pelo Copom"],src:"https://www.bcb.gov.br/controleinflacao/historicotaxasjuros"});}
+  const de=j.desemprego, dl=last(de);
+  if(dl){n++; const ant=de.length>=13?de[de.length-13]:null;
+    setKpi("brasil","desemprego",{v:fmt(dl.valor,1),n:`Trimestre móvel até ${mesAno(dl.data)}`,
+      pill:ant?(dl.valor<ant.valor?["good",`Abaixo de um ano antes (${fmt(ant.valor,1)}%)`]:dl.valor>ant.valor?["warn",`Acima de um ano antes (${fmt(ant.valor,1)}%)`]:["info","Igual a um ano antes"]):null,
+      src:"https://www.ibge.gov.br/estatisticas/sociais/trabalho/9171-pesquisa-nacional-por-amostra-de-domicilios-continua-mensal.html"});}
+  const po=j.populacao||{};
+  if(po.brasil){n++; setKpi("brasil","popBrasil",{v:fmt(po.brasil.valor/1e6,1),n:`IBGE, estimativa ${po.brasil.ano}`,src:"https://sidra.ibge.gov.br/tabela/6579"});}
+  if(po.cidade){n++; setKpi("cidade","popCidade",{v:fmt(po.cidade.valor/1e6,1),n:`IBGE, estimativa ${po.cidade.ano}`,src:"https://sidra.ibge.gov.br/tabela/6579"});}
+  if(po.estado){D.estado.lede=D.estado.lede.replace(/cerca de [\d,]+ milhões/,`cerca de ${fmt(po.estado.valor/1e6,1)} milhões`);}
+  return n;
+}
+
+function aplicarSenado(j){
+  const lista=j.senadoresSP; if(!Array.isArray(lista)||!lista.length) return 0;
+  const antigo=D.brasil.senado.linhas;
+  D.brasil.senado.linhas=lista.map(s=>{
+    const m=antigo.find(l=>norm(l[0]).includes(norm(s.nome))||norm(s.nome).includes(norm(l[0])));
+    return [s.nome,s.partido||(m?m[1]:"—"),m?m[2]:"—",m?m[3]:"—"];
+  });
+  D.brasil.senado.sub="Em exercício (ao vivo). Cota parlamentar de 2026 até meados de outubro.";
+  return 1;
+}
+
+function liveCamaraBlock(){
+  if(!LIVE.camara) return `<div class="grid" style="margin-top:16px"><div class="panel span-12"><p class="sub" style="margin:0">A consulta ao vivo da Câmara não respondeu agora. Os dados acima são de 04/11/2026.</p></div></div>`;
+  const c=LIVE.camara; let h=`<div class="grid" style="margin-top:16px">`;
+  if(c.deputadosSP){
+    h+=casaPanel({titulo:"Bancada paulista em exercício hoje",sub:`${c.deputadosSP.total} deputados federais por SP na legislatura atual`,total:c.deputadosSP.total,
+      partidos:c.deputadosSP.partidos,destaque:"",fonte:["Câmara dos Deputados","https://www.camara.leg.br/deputados/quem-sao"]},"span-6").replace('<h3>','<p class="eyebrow" style="margin:0 0 6px"><span class="live">ao vivo</span></p><h3>');
+  }
+  if(Array.isArray(c.votacoes)){
+    h+=`<div class="panel span-6"><p class="eyebrow" style="margin:0 0 6px"><span class="live">ao vivo</span></p><h3>Votações no plenário da Câmara</h3><p class="sub">Últimos 30 dias, mais recentes primeiro</p>
+    ${c.votacoes.length?`<ul class="votes">${c.votacoes.map(v=>`<li><div class="vh"><span class="date mono" style="color:var(--muted);font-size:12px">${esc(dataBR(v.data))}</span>
+      ${v.aprovada===true?'<span class="pill good" style="margin:0">Aprovado</span>':v.aprovada===false?'<span class="pill warn" style="margin:0">Rejeitado</span>':""}</div>
+      <span>${esc(v.descricao)}</span><a class="src" style="margin:0" href="${v.registro}" target="_blank" rel="noopener">registro oficial</a></li>`).join("")}</ul>`
+      :`<p class="empty">Nenhuma votação em plenário nos últimos 30 dias.</p>`}
+    <p class="src">Fonte: <a href="https://dadosabertos.camara.leg.br/" target="_blank" rel="noopener">Câmara dos Deputados · Dados Abertos</a></p></div>`;
+  }
+  return h+`</div>`;
+}
+
+async function carregarAoVivo(){
+  const [ind,cam,sen]=await Promise.allSettled([api("/api/indicadores"),api("/api/camara"),api("/api/senado")]);
+  let ok=0, quando=null;
+  const marca=j=>{if(j&&j.consultadoEm&&(!quando||j.consultadoEm<quando)) quando=j.consultadoEm;};
+  if(ind.status==="fulfilled"){ok+=aplicarIndicadores(ind.value); marca(ind.value);}
+  if(cam.status==="fulfilled"&&(cam.value.deputadosSP||cam.value.votacoes)){LIVE.camara=cam.value; ok++; marca(cam.value);} else LIVE.camaraErro=true;
+  if(sen.status==="fulfilled"){ok+=aplicarSenado(sen.value); marca(sen.value);}
+  const st=document.getElementById("stamp");
+  if(ok&&quando){const d=new Date(quando); st.textContent=`AO VIVO · CONSULTADO ${d.toLocaleDateString("pt-BR")} ${d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}`;}
+  if(ok){const y=scrollY; route(); scrollTo(0,y);}
+}
+
+route();
+carregarAoVivo();
+</script>
+</body>
+</html>
