@@ -153,6 +153,38 @@ footer{border-top:1px solid var(--line);padding-block:20px;color:var(--muted);fo
 
 
 
+
+/* aba Debates */
+.db-list{display:grid;gap:12px}
+.db-card{display:grid;gap:6px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px;cursor:pointer;font:inherit;color:inherit}
+.db-card[aria-current="true"]{border-color:var(--ink);box-shadow:inset 3px 0 0 var(--ink)}
+.db-card .meta{font:500 12px var(--f-mono);color:var(--muted)}
+.db-card b{font:700 17px/1.25 var(--f-display);font-stretch:92%}
+.db-layout{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:900px){.db-layout{grid-template-columns:1fr}}
+.db-art{scroll-margin-top:130px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:clamp(18px,3vw,32px);min-width:0}
+.db-art h3{font:800 clamp(24px,3.4vw,34px)/1.1 var(--f-display);font-stretch:85%;margin:6px 0 12px;text-wrap:balance}
+.db-art h4{font:700 19px var(--f-display);font-stretch:90%;margin:26px 0 8px}
+.db-art p,.db-art li{font-size:15.5px;line-height:1.65;max-width:72ch}
+.db-art p{margin:0 0 12px}
+.db-art ul{padding-left:20px;margin:0 0 12px;display:grid;gap:6px}
+.db-short{background:var(--ink-soft);border-radius:6px;padding:14px 18px;margin:8px 0 16px}
+.db-short p{margin:0}
+.db-art table{margin:8px 0 12px}
+.db-art td{white-space:normal!important;vertical-align:top}
+.db-tags{display:flex;flex-wrap:wrap;gap:6px}
+.db-tags span{font:500 11.5px var(--f-mono);color:var(--ink);background:var(--ink-soft);padding:2px 8px;border-radius:99px}
+.db-form{display:grid;gap:10px;max-width:640px}
+.db-form label{display:grid;gap:4px;font-size:13px;color:var(--muted)}
+.db-form,.db-form label{min-width:0}
+.db-form input,.db-form textarea,.db-form select{width:100%;max-width:100%;min-width:0;box-sizing:border-box}
+.db-form input,.db-form textarea,.db-form select{font:15px var(--f-body);padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--fg)}
+.db-form textarea{min-height:120px;resize:vertical}
+.db-form button{justify-self:start;font:600 14px var(--f-body);padding:10px 18px;border-radius:6px;border:0;background:var(--ink);color:var(--surface);cursor:pointer}
+.db-ok{color:var(--good);font-weight:600}
+.db-err{color:var(--bad);font-weight:600}
+.db-src{font-size:13px!important;color:var(--muted)}
+.db-src a{color:var(--muted)}
 /* aba Ranking */
 .rk-weights{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:12px 20px;align-items:end}
 .rk-weights label{display:grid;gap:4px;font-size:13px}
@@ -288,6 +320,7 @@ table.pr-rank tbody tr:focus-visible{outline:2px solid var(--ink);outline-offset
       <a href="#termometro" data-view="termometro">Termômetro</a>
       <a href="#ranking" data-view="ranking">Ranking</a>
       <a href="#prioridades" data-view="prioridades">Prioridades</a>
+      <a href="#debates" data-view="debates">Debates</a>
       <a href="#fontes" data-view="fontes">Fontes e método</a>
     </nav>
   </div>
@@ -295,6 +328,9 @@ table.pr-rank tbody tr:focus-visible{outline:2px solid var(--ink);outline-offset
 
 <main class="wrap" id="app"></main>
 <div id="tip" hidden></div>
+<form name="debates" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input type="text" name="nome"><input type="email" name="email"><input type="text" name="tema"><textarea name="mensagem"></textarea><input name="bot-field">
+</form>
 
 <footer>
   <div class="wrap">Projeto cidadão, sem vínculo partidário. Todo número tem link para a fonte original. Encontrou um erro? Avise quem compartilhou esta página com você.</div>
@@ -505,6 +541,7 @@ function render(view){
   const app=document.getElementById("app");
   document.querySelectorAll("nav.tabs a").forEach(a=>{ if(a.dataset.view===view) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
   if(view==="fontes"){ app.innerHTML=fontesView(); return; }
+  if(view==="debates"){ app.innerHTML=debatesView(); wireDebates(app); return; }
   if(view==="ranking"){ app.innerHTML=rankingView(); wireRanking(app); return; }
   if(view==="termometro"){ app.innerHTML=termometroView(); return; }
   if(view==="prioridades"){ app.innerHTML=prioridadesView(); wirePrioridades(app); return; }
@@ -598,7 +635,7 @@ document.addEventListener("pointermove",e=>{const t=e.target.closest&&e.target.c
   const w=tip.offsetWidth; let x=e.clientX+14; if(x+w>innerWidth-8)x=e.clientX-w-14; tip.style.left=Math.max(8,x)+"px"; tip.style.top=(e.clientY+16)+"px";});
 document.addEventListener("pointerleave",()=>tip.hidden=true);
 
-function route(){const v=(location.hash||"#brasil").slice(1);render(["brasil","estado","cidade","termometro","ranking","prioridades","fontes"].includes(v)?v:"brasil");}
+function route(){const v=(location.hash||"#brasil").slice(1);render(["brasil","estado","cidade","termometro","ranking","prioridades","debates","fontes"].includes(v)?v:"brasil");}
 addEventListener("hashchange",()=>{route();window.scrollTo(0,0);});
 // ---------- Camada ao vivo: consulta as funções /api/* do próprio site ----------
 const LIVE={camara:null,camaraErro:null,quando:null};
@@ -881,6 +918,109 @@ function wireRanking(root){
     RK_DIM.forEach(d=>{root.querySelector("#rk-v-"+d.id).textContent=RK_PESO[d.id];root.querySelector("#rk-"+d.id).value=RK_PESO[d.id];});};
   root.querySelectorAll("input[data-dim]").forEach(inp=>inp.addEventListener("input",()=>{RK_PESO[inp.dataset.dim]=Number(inp.value);refresh();}));
   root.querySelector("#rk-reset").addEventListener("click",()=>{RK_PESO={...RK_PESO0};refresh();});
+}
+
+// ---------- Aba Debates: perguntas, pesquisas e contribuições ----------
+const DEBATES=[{
+  id:"ideb",data:"07/11/2026",tags:["Educação","Avaliação","Comparação internacional"],
+  pergunta:"O Ideb mede bem a evolução da qualidade da educação no Brasil?",
+  resumo:"Útil para acompanhar tendências e cobrar redes grandes, insuficiente sozinho. Noruega e Holanda não usam um índice único.",
+  html:`
+  <div class="db-short"><p><b>Resposta curta:</b> em parte. O Ideb é bom para mostrar se o país, um estado ou uma rede grande está melhorando em Português e Matemática ao longo do tempo. Mas ele não mede toda a qualidade da educação, pode subir sem que os alunos aprendam mais e esconde desigualdades. Noruega e Holanda acompanham a educação com um conjunto de indicadores, não com uma nota única.</p></div>
+
+  <h4>O que o Ideb faz bem</h4>
+  <ul>
+    <li><b>É simples e comparável.</b> Uma nota de 0 a 10, calculada do mesmo jeito desde 2005, para todas as escolas públicas, redes, cidades, estados e o país.</li>
+    <li><b>Junta aprender e avançar.</b> Ao multiplicar a nota das provas pela aprovação, desestimula reprovar em massa para subir a média, e também aprovar sem ensinar.</li>
+    <li><b>Mostra tendências reais.</b> Em 2025, o Brasil chegou a 6,3 nos anos iniciais, acima da meta de 6,0. Os municípios abaixo de 4,9 caíram de 1.097 para 442 em dois anos.</li>
+    <li><b>Criou cobrança pública.</b> Casos como Sobral (CE), que saiu de notas baixas para 9,6, viraram referência porque o Ideb permitiu medir e comparar.</li>
+  </ul>
+
+  <h4>Onde ele falha</h4>
+  <ul>
+    <li><b>Mede pouco.</b> Só Português e Matemática, em três etapas. Ficam de fora outras áreas, a educação infantil, a infraestrutura, o clima escolar e a formação dos professores.</li>
+    <li><b>Pode ser inflado.</b> Pesquisadores e jornalistas apontam práticas como afastar alunos com baixo desempenho no dia da prova do Saeb e adotar progressão automática para melhorar a aprovação, sem ganho real de aprendizado.</li>
+    <li><b>Esconde a desigualdade.</b> É uma média. Uma rede pode subir enquanto os alunos mais pobres ficam para trás. Análises com o indicador socioeconômico do Inep (Inse) mostram que escolas de alunos mais pobres estão até quatro anos de aprendizado atrás das de alunos mais ricos.</li>
+    <li><b>Ignora o ponto de partida.</b> Compara da mesma forma escolas com realidades muito diferentes, sem descontar o perfil dos alunos.</li>
+    <li><b>É uma foto, não um filme.</b> Mostra o resultado de uma turma em um ano, não quanto aqueles alunos evoluíram.</li>
+  </ul>
+
+  <h4>O que está mudando</h4>
+  <p>Com o fim do ciclo de metas do Plano Nacional de Educação de 2014, o Inep discute uma nova metodologia para o PNE 2026–2036. Entre as ideias em debate estão incluir medidas de equidade (racial, socioeconômica e regional) e outros indicadores além das provas. A fórmula final ainda não foi definida.</p>
+
+  <h4>Como a Noruega acompanha a educação</h4>
+  <ul>
+    <li><b>Provas nacionais</b> no 5º, 8º e 9º ano, de leitura, matemática e inglês. O governo diz expressamente que elas não servem para ranquear alunos, escolas ou municípios.</li>
+    <li><b>Testes de diagnóstico</b> no 1º ao 3º ano, só para o professor identificar quem precisa de ajuda. Os resultados não são publicados.</li>
+    <li><b>Pesquisa com os alunos</b> (Elevundersøkelsen), todo ano, sobre bem-estar, bullying, apoio dos professores e motivação. Em 2020, 5,8% dos alunos relataram sofrer bullying ao menos duas ou três vezes por mês.</li>
+    <li><b>Notas e exames</b> no fim do ensino fundamental e a taxa de conclusão do ensino médio. De quem começou em 2014, 79,6% concluíram em até seis anos.</li>
+    <li><b>Contribuição da escola</b> (skolebidrag): uma medida de valor agregado, que estima quanto a escola fez os alunos avançarem, descontando o perfil com que chegaram.</li>
+    <li>Cada município publica um relatório anual de qualidade com tudo isso, mais faltas, recursos por aluno e número de alunos por professor.</li>
+  </ul>
+
+  <h4>Como a Holanda acompanha a educação</h4>
+  <ul>
+    <li><b>Teste de transição</b> (doorstroomtoets) no último ano do ensino primário, em leitura, língua e matemática.</li>
+    <li><b>Níveis de referência</b> em vez de uma média: o nível fundamental (1F), que quase todos devem atingir, e o nível desejado (2F em leitura e língua, 1S em matemática). A escola é avaliada pela porcentagem de alunos em cada nível, na média dos últimos três anos.</li>
+    <li><b>Peso da escola</b> (schoolweging): o instituto de estatística calcula, de 20 a 40, quão complexo é o perfil dos alunos, com base na escolaridade dos pais, na origem da família e em situações como dívidas. A meta de cada escola é ajustada a esse peso. Uma escola com alunos mais vulneráveis tem um patamar mínimo menor no nível desejado (por exemplo, 30,3% em vez de 68,3%), mas o nível fundamental exige 85% de todas.</li>
+    <li><b>Inspeção</b>: a Inspetoria da Educação usa esses dados para decidir onde visitar, e a escola abaixo do patamar precisa explicar seus resultados com uma análise, não com desculpas sobre o perfil dos alunos.</li>
+  </ul>
+
+  <h4>Comparação lado a lado</h4>
+  <div class="tscroll"><table class="t"><thead><tr><th></th><th>Brasil</th><th>Noruega</th><th>Holanda</th></tr></thead><tbody>
+    <tr><td>Índice único</td><td>Sim, o Ideb</td><td>Não</td><td>Não</td></tr>
+    <tr><td>Provas nacionais</td><td>Saeb, a cada dois anos</td><td>Anuais, 5º, 8º e 9º ano</td><td>Anual, fim do primário</td></tr>
+    <tr><td>Como mostra o resultado</td><td>Média de 0 a 10</td><td>Média e % nos níveis mais baixos</td><td>% de alunos em cada nível de referência</td></tr>
+    <tr><td>Considera o perfil dos alunos</td><td>Não no índice (o Inep publica o Inse à parte)</td><td>Sim, no valor agregado</td><td>Sim, a meta é ajustada ao peso da escola</td></tr>
+    <tr><td>Bem-estar e bullying</td><td>Não</td><td>Sim, pesquisa anual com alunos</td><td>Parte da inspeção</td></tr>
+    <tr><td>Uso para ranking</td><td>Frequente, na imprensa e na política</td><td>Desencorajado oficialmente</td><td>Para decidir onde inspecionar</td></tr>
+  </tbody></table></div>
+
+  <h4>O que o Brasil poderia aprender</h4>
+  <ul>
+    <li><b>Publicar a distribuição, não só a média.</b> Mostrar quantos alunos estão abaixo do básico revela quem está ficando para trás.</li>
+    <li><b>Comparar escolas parecidas.</b> Ajustar metas ao perfil socioeconômico, como faz a Holanda, para premiar o esforço de quem trabalha com alunos mais vulneráveis.</li>
+    <li><b>Medir o avanço de cada aluno</b> ao longo dos anos, como o valor agregado norueguês.</li>
+    <li><b>Ouvir os alunos.</b> Uma pesquisa nacional de bem-estar e bullying mediria o que a prova não mede.</li>
+    <li><b>Exigir participação alta nas provas</b> e acompanhar quem faltou, para evitar exclusão de quem tem mais dificuldade.</li>
+  </ul>
+  <p>Vale lembrar o contexto: no PISA de 2022, 73% dos estudantes brasileiros de 15 anos ficaram abaixo do nível básico em matemática, contra cerca de 30% na média da OCDE. O Ideb dos anos iniciais melhorou, mas o desafio dos anos finais e do ensino médio continua grande: em 2025, ficaram em 5,3 e 4,5, abaixo das metas.</p>
+
+  <p class="db-src">Fontes: <a href="https://educacaointegral.org.br/reportagens/ideb-brasil-mais-alto-historia-mas-limites-persistem/" target="_blank" rel="noopener">Centro de Referências em Educação Integral</a> · <a href="https://jornal.unesp.br/2026/08/25/novo-ideb-precisa-ampliar-metodologia-para-contemplar-diversidade-de-realidades-das-escolas-publicas-brasileiras-avalia-especialista-da-unesp/" target="_blank" rel="noopener">Jornal da Unesp</a> · <a href="https://jeduca.org.br/noticia/ideb-entenda-o-indicador-e-caminhos-para-reportagem" target="_blank" rel="noopener">Jeduca</a> · <a href="https://iclnoticias.com.br/aprovacao-automatica-a-alquimia-que-infla-o-ideb/" target="_blank" rel="noopener">ICL Notícias</a> · <a href="https://eurydice.eacea.ec.europa.eu/national-education-systems/norway/assessment-single-structure-education" target="_blank" rel="noopener">Eurydice (Noruega)</a> · <a href="https://www.helsedirektoratet.no/rapporter/sektorrapport-om-folkehelse/oppvekst/skole-og-utdanning" target="_blank" rel="noopener">Helsedirektoratet</a> · <a href="https://www.elverum.kommune.no/elverum-ungdomsskole/_f/p18/i26ad3958-577e-4145-a62b-dc30e42566f5/kvalitetsmelding-skolearet-2023-24.pdf" target="_blank" rel="noopener">Relatório de qualidade de Elverum</a> · <a href="https://onderwijsinspectie.nl/binaries/onderwijsinspectie/documenten/publicaties/2019/12/10/onderwijsresultatenmodel-voor-het-primair-onderwijs/Onderwijsresultaten+primair+onderwijs+2024.pdf" target="_blank" rel="noopener">Inspetoria da Educação da Holanda</a> · <a href="https://www.itausocial.org.br/wp-content/uploads/2023/12/PISA-2022-contextualizacao-e-perspectivas.pdf" target="_blank" rel="noopener">Itaú Social (PISA 2022)</a></p>`
+}];
+let DB_ATUAL=DEBATES[0].id;
+function debatesView(){
+  const a=DEBATES.find(d=>d.id===DB_ATUAL)||DEBATES[0];
+  return `<div class="lede"><div><p class="eyebrow">Perguntas, pesquisas e contribuições</p><h2>Debates</h2></div>
+    <p>Um espaço para ir além dos números: perguntas sobre gestão pública respondidas com pesquisa e fontes. Mande sua opinião ou sugira a próxima pergunta no fim da página.</p></div>
+  <div class="db-layout">
+    <div class="db-list" role="list">${DEBATES.map(d=>`<button class="db-card" role="listitem" data-db="${d.id}" aria-current="${d.id===a.id}"><span class="meta">${d.data}</span><b>${esc(d.pergunta)}</b><span class="sub" style="margin:0">${esc(d.resumo)}</span></button>`).join("")}</div>
+    <article class="db-art" id="db-art"><div class="db-tags">${a.tags.map(t=>`<span>${esc(t)}</span>`).join("")}</div><h3>${esc(a.pergunta)}</h3>${a.html}</article>
+  </div>
+  <section class="block" id="db-contribua"><p class="eyebrow">Participe</p>
+    <div class="panel"><h3>Mande sua opinião ou sugira uma pergunta</h3><p class="sub">As mensagens chegam para quem mantém o Observatório e podem virar novos debates. Não publique dados pessoais de terceiros.</p>
+      <form class="db-form" id="db-form" name="debates">
+        <input type="hidden" name="form-name" value="debates">
+        <p hidden><label>Não preencha: <input name="bot-field"></label></p>
+        <label for="db-nome">Seu nome<input id="db-nome" name="nome" type="text" autocomplete="name" required></label>
+        <label for="db-email">E-mail (opcional, para resposta)<input id="db-email" name="email" type="email" autocomplete="email"></label>
+        <label for="db-tema">Sobre<select id="db-tema" name="tema"><option value="${esc(a.pergunta)}">${esc(a.pergunta)}</option><option value="Nova pergunta">Sugerir uma nova pergunta</option><option value="Outro">Outro assunto</option></select></label>
+        <label for="db-msg">Mensagem<textarea id="db-msg" name="mensagem" required></textarea></label>
+        <button type="submit">Enviar</button>
+        <p id="db-status" role="status" aria-live="polite"></p>
+      </form></div></section>`;
+}
+function wireDebates(root){
+  root.querySelectorAll("[data-db]").forEach(b=>b.addEventListener("click",()=>{DB_ATUAL=b.dataset.db;const app=document.getElementById("app");app.innerHTML=debatesView();wireDebates(app);document.getElementById("db-art").scrollIntoView({behavior:"smooth",block:"start"});}));
+  const f=root.querySelector("#db-form"),st=root.querySelector("#db-status");
+  f.addEventListener("submit",async e=>{
+    e.preventDefault();st.className="";st.textContent="Enviando…";
+    try{
+      const r=await fetch("/",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams(new FormData(f)).toString()});
+      if(!r.ok) throw new Error("HTTP "+r.status);
+      f.reset();st.className="db-ok";st.textContent="Mensagem enviada. Obrigado por participar.";
+    }catch(err){st.className="db-err";st.textContent="Não foi possível enviar agora. Tente de novo em alguns minutos.";}
+  });
 }
 
 // ---------- Aba Prioridades: estudo de temas e plano de curto, médio e longo prazo ----------
