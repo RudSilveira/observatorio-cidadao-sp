@@ -152,6 +152,30 @@ footer{border-top:1px solid var(--line);padding-block:20px;color:var(--muted);fo
 
 
 
+
+/* aba Ranking */
+.rk-weights{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:12px 20px;align-items:end}
+.rk-weights label{display:grid;gap:4px;font-size:13px}
+.rk-weights label span{display:flex;justify-content:space-between;gap:8px}
+.rk-weights label b{font-variant-numeric:tabular-nums}
+.rk-weights input[type=range]{width:100%;accent-color:var(--ink)}
+.rk-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--muted);margin:10px 0 14px}
+.rk-legend span{display:inline-flex;align-items:center;gap:6px}
+.rk-legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.rk-rows{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px 12px;align-items:center}
+.rk-row{display:contents}
+.rk-pos{font:800 22px var(--f-display);font-stretch:80%;color:var(--muted);text-align:right;min-width:28px}
+.rk-name{display:grid;gap:4px;min-width:0}
+.rk-name b{font-size:14.5px}
+.rk-bar{display:flex;height:22px;border-radius:4px;overflow:hidden;background:var(--line);gap:2px}
+.rk-bar i{display:block;height:100%}
+.rk-score{display:grid;justify-items:end;gap:2px}
+.rk-score .n{font:800 24px var(--f-display);font-stretch:80%;font-variant-numeric:tabular-nums;padding:0 8px;border-radius:4px}
+.rk-score small{font-size:11.5px;color:var(--muted);white-space:nowrap}
+.rk-score small.low{color:var(--bad)}
+table.rk-t td.c{text-align:center;font-variant-numeric:tabular-nums}
+table.rk-t td.c span{display:inline-block;min-width:44px;padding:2px 6px;border-radius:4px}
+.rk-btn{font:600 13px var(--f-body);padding:8px 14px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
 /* aba Termômetro */
 .tm-legend{display:flex;flex-wrap:wrap;gap:6px;font-size:12.5px;margin-top:10px}
 .tm-legend span{padding:3px 10px;border-radius:99px;border:1px solid var(--line)}
@@ -262,6 +286,7 @@ table.pr-rank tbody tr:focus-visible{outline:2px solid var(--ink);outline-offset
       <a href="#estado" data-view="estado">Estado de São Paulo</a>
       <a href="#cidade" data-view="cidade">Cidade de São Paulo</a>
       <a href="#termometro" data-view="termometro">Termômetro</a>
+      <a href="#ranking" data-view="ranking">Ranking</a>
       <a href="#prioridades" data-view="prioridades">Prioridades</a>
       <a href="#fontes" data-view="fontes">Fontes e método</a>
     </nav>
@@ -480,6 +505,7 @@ function render(view){
   const app=document.getElementById("app");
   document.querySelectorAll("nav.tabs a").forEach(a=>{ if(a.dataset.view===view) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
   if(view==="fontes"){ app.innerHTML=fontesView(); return; }
+  if(view==="ranking"){ app.innerHTML=rankingView(); wireRanking(app); return; }
   if(view==="termometro"){ app.innerHTML=termometroView(); return; }
   if(view==="prioridades"){ app.innerHTML=prioridadesView(); wirePrioridades(app); return; }
   const d=D[view];
@@ -572,7 +598,7 @@ document.addEventListener("pointermove",e=>{const t=e.target.closest&&e.target.c
   const w=tip.offsetWidth; let x=e.clientX+14; if(x+w>innerWidth-8)x=e.clientX-w-14; tip.style.left=Math.max(8,x)+"px"; tip.style.top=(e.clientY+16)+"px";});
 document.addEventListener("pointerleave",()=>tip.hidden=true);
 
-function route(){const v=(location.hash||"#brasil").slice(1);render(["brasil","estado","cidade","termometro","prioridades","fontes"].includes(v)?v:"brasil");}
+function route(){const v=(location.hash||"#brasil").slice(1);render(["brasil","estado","cidade","termometro","ranking","prioridades","fontes"].includes(v)?v:"brasil");}
 addEventListener("hashchange",()=>{route();window.scrollTo(0,0);});
 // ---------- Camada ao vivo: consulta as funções /api/* do próprio site ----------
 const LIVE={camara:null,camaraErro:null,quando:null};
@@ -774,6 +800,87 @@ function termometroView(){
       <li>Ainda faltam: desemprego e abstenção de São José dos Campos, séries anuais completas de mortalidade infantil para o Estado, o Brasil e São José dos Campos, e o Ideb do Estado antes de 2025.</li>
       <li>Passe o mouse sobre um quadro ou ponto para ver a fonte e o valor. Cada quadro tem link para a fonte.</li>
     </ul></details></section>`;
+}
+
+// ---------- Aba Ranking: índice composto de 0 a 100 ----------
+const RK_DIM=[
+  {id:"economia",nome:"Economia",cor:"#2d5be0",peso:25,inds:[["pib_pc",0.6],["desemprego",0.4]]},
+  {id:"saude",nome:"Saúde",cor:"#1a9a6c",peso:25,inds:[["mort_inf",1]]},
+  {id:"educacao",nome:"Educação",cor:"#d4731c",peso:20,inds:[["ideb_ai",1]]},
+  {id:"seguranca",nome:"Segurança",cor:"#8b5cc4",peso:20,inds:[["homicidios",1]]},
+  {id:"participacao",nome:"Participação política",cor:"#0f8fa8",peso:10,inds:[["abstencao",1]]}];
+const RK_PESO0=Object.fromEntries(RK_DIM.map(d=>[d.id,d.peso]));
+let RK_PESO={...RK_PESO0};
+const rkClamp=v=>Math.max(0,Math.min(100,v));
+// Pior (0) e melhor (100) de cada indicador, como os limites do IDH
+const RK_ESCALA={
+  pib_pc:{pior:"0,25 vez o Brasil",melhor:"2 vezes o Brasil",f:r=>r.razao==null?null:rkClamp((r.razao-0.25)/(2-0.25)*100)},
+  desemprego:{pior:"15%",melhor:"3%",f:r=>rkClamp((15-r.valor)/(15-3)*100)},
+  mort_inf:{pior:"20 por mil",melhor:"5 por mil",f:r=>rkClamp((20-r.valor)/(20-5)*100)},
+  ideb_ai:{pior:"4,0",melhor:"9,0",f:r=>rkClamp((r.valor-4)/(9-4)*100)},
+  homicidios:{pior:"50 por 100 mil",melhor:"1 por 100 mil (escala logarítmica)",f:r=>rkClamp((Math.log(50)-Math.log(Math.max(r.valor,1)))/Math.log(50)*100)},
+  abstencao:{pior:"30%",melhor:"10%",f:r=>rkClamp((30-r.valor)/(30-10)*100)}};
+function rkCalcular(){
+  const sit=tmSituacao(),pesoTot=RK_DIM.reduce((s,d)=>s+RK_PESO[d.id],0)||1;
+  return TM_LOC.map(local=>{
+    const dims={};let soma=0,pesoDisp=0;
+    RK_DIM.forEach(d=>{
+      let n=0,w=0;
+      d.inds.forEach(([ind,wi])=>{const r=sit.find(x=>x.local===local&&x.ind===ind);if(!r||r.valor==null)return;const sc=RK_ESCALA[ind].f(r);if(sc==null)return;n+=sc*wi;w+=wi;});
+      dims[d.id]=w?n/w:null;
+      if(w&&RK_PESO[d.id]>0){soma+=dims[d.id]*RK_PESO[d.id];pesoDisp+=RK_PESO[d.id];}
+    });
+    const total=pesoDisp?soma/pesoDisp:null;
+    return {local,nome:TM.locais.find(l=>l.id===local).nome,dims,total,cobertura:pesoDisp/pesoTot,pesoDisp};
+  }).sort((a,b)=>(b.total??-1)-(a.total??-1));
+}
+const rkNivel=v=>v==null?0:v>=80?5:v>=65?4:v>=50?3:v>=35?2:1;
+function rkLinhas(){
+  const rows=rkCalcular();
+  return rows.map((r,i)=>{
+    const segs=RK_DIM.filter(d=>r.dims[d.id]!=null&&RK_PESO[d.id]>0).map(d=>{const c=r.dims[d.id]*RK_PESO[d.id]/r.pesoDisp;return `<i style="width:${c}%;background:${d.cor}" data-tip="${d.nome}: nota ${tmF(r.dims[d.id],0)} · soma ${tmF(c,1)} pontos ao total"></i>`;}).join("");
+    const faltam=RK_DIM.filter(d=>r.dims[d.id]==null).map(d=>d.nome.toLowerCase());
+    return `<div class="rk-row"><span class="rk-pos">${i+1}</span>
+      <div class="rk-name"><b>${esc(r.nome)}</b><div class="rk-bar" role="img" aria-label="${esc(r.nome)}: ${r.total==null?"sem dado":tmF(r.total,1)} de 100">${segs}</div></div>
+      <div class="rk-score"><span class="n lv${rkNivel(r.total)}">${r.total==null?"—":tmF(r.total,1)}</span>
+        <small class="${r.cobertura<0.7?"low":""}" ${faltam.length?`data-tip="Sem dado de ${faltam.join(", ")}"`:""}>dados de ${tmF(r.cobertura*100,0)}% do peso</small></div></div>`;
+  }).join("");
+}
+function rkTabela(){
+  const rows=rkCalcular();
+  return `<div class="tscroll"><table class="t rk-t"><thead><tr><th>#</th><th>Local</th><th class="r">Índice</th>${RK_DIM.map(d=>`<th class="r">${d.nome}</th>`).join("")}<th class="r">Cobertura</th></tr></thead><tbody>
+    ${rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.nome)}</td><td class="c"><span class="lv${rkNivel(r.total)}"><b>${r.total==null?"—":tmF(r.total,1)}</b></span></td>
+      ${RK_DIM.map(d=>`<td class="c"><span class="lv${rkNivel(r.dims[d.id])}">${r.dims[d.id]==null?"—":tmF(r.dims[d.id],0)}</span></td>`).join("")}
+      <td class="c">${tmF(r.cobertura*100,0)}%</td></tr>`).join("")}</tbody></table></div>`;
+}
+function rankingView(){
+  return `<div class="lede"><div><p class="eyebrow">Índice composto de gestão pública</p><h2>Ranking</h2></div>
+    <p>Um número de 0 a 100 que resume todos os indicadores do Termômetro, para comparar país, estado e cidades na mesma régua. Quanto maior, melhor. Mude os pesos abaixo para ver como a ordem muda conforme o que você considera mais importante.</p></div>
+  <section class="block" style="margin-top:0"><div class="panel">
+    <h3>Peso de cada área</h3><p class="sub">Os pesos padrão dão mais importância a saúde e economia, depois educação e segurança. A participação política pesa menos.</p>
+    <div class="rk-weights">${RK_DIM.map(d=>`<label for="rk-${d.id}"><span>${d.nome}<b id="rk-v-${d.id}">${RK_PESO[d.id]}</b></span><input type="range" id="rk-${d.id}" min="0" max="50" step="5" value="${RK_PESO[d.id]}" data-dim="${d.id}"></label>`).join("")}
+      <div><button class="rk-btn" id="rk-reset" type="button">Restaurar pesos padrão</button></div></div></div></section>
+  <section class="block"><p class="eyebrow">Do melhor para o pior</p>
+    <div class="panel"><div class="rk-legend">${RK_DIM.map(d=>`<span><i style="background:${d.cor}"></i>${d.nome}</span>`).join("")}</div>
+      <p class="sub">Cada barra mostra quanto cada área soma ao índice. Passe o mouse sobre um trecho para ver a nota da área. Em vermelho, locais com dados de menos de 70% do peso total: a posição deles é menos confiável.</p>
+      <div class="rk-rows" id="rk-rows">${rkLinhas()}</div></div></section>
+  <section class="block"><p class="eyebrow">Nota de cada área</p><div class="panel" id="rk-tab">${rkTabela()}</div></section>
+  <section class="block"><details class="panel pr-method" open><summary>Como o índice é calculado</summary>
+    <ul>
+      <li><b>1. Cada indicador vira uma nota de 0 a 100.</b> Para cada um há um "pior" (nota 0) e um "melhor" (nota 100). É o mesmo método do IDH da ONU. Valores além desses limites ficam em 0 ou 100.</li>
+      <li><b>2. As notas viram áreas.</b> Economia junta PIB per capita (60%) e desemprego (40%). Saúde usa mortalidade infantil, educação usa o Ideb dos anos iniciais, segurança usa homicídios e participação usa abstenção. A inflação fica de fora porque só existe para o Brasil.</li>
+      <li><b>3. As áreas viram o índice.</b> É uma média ponderada pelos pesos escolhidos acima. Quando falta o dado de uma área, o peso dela é dividido entre as outras, e a cobertura mostra quanto do peso total tem dado.</li>
+      <li><b>Cuidados.</b> Os dados são de anos diferentes, de 2019 a 2026, e cidades pequenas oscilam muito. Desemprego só existe para Brasil, Estado e capital. O índice serve para comparar e levantar perguntas, não para dar nota oficial a ninguém.</li>
+    </ul>
+    <div class="tscroll" style="margin-top:12px"><table class="t"><thead><tr><th>Indicador</th><th>Nota 0 (pior)</th><th>Nota 100 (melhor)</th></tr></thead><tbody>
+      ${[["pib_pc","PIB per capita"],["desemprego","Desemprego"],["mort_inf","Mortalidade infantil"],["ideb_ai","Ideb anos iniciais"],["homicidios","Homicídios"],["abstencao","Abstenção eleitoral"]].map(([id,n])=>`<tr><td>${n}</td><td>${RK_ESCALA[id].pior}</td><td>${RK_ESCALA[id].melhor}</td></tr>`).join("")}
+    </tbody></table></div></details></section>`;
+}
+function wireRanking(root){
+  const refresh=()=>{root.querySelector("#rk-rows").innerHTML=rkLinhas();root.querySelector("#rk-tab").innerHTML=rkTabela();
+    RK_DIM.forEach(d=>{root.querySelector("#rk-v-"+d.id).textContent=RK_PESO[d.id];root.querySelector("#rk-"+d.id).value=RK_PESO[d.id];});};
+  root.querySelectorAll("input[data-dim]").forEach(inp=>inp.addEventListener("input",()=>{RK_PESO[inp.dataset.dim]=Number(inp.value);refresh();}));
+  root.querySelector("#rk-reset").addEventListener("click",()=>{RK_PESO={...RK_PESO0};refresh();});
 }
 
 // ---------- Aba Prioridades: estudo de temas e plano de curto, médio e longo prazo ----------
